@@ -10,4 +10,6 @@
 #include <ctime>
 #include <string>
 
+using namespace std;
+
 #endif //COMPILER_LA_H
