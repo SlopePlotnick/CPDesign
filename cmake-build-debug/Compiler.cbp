@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="Compiler"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Compiler">
+				<Option output="/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Compiler" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/opt/homebrew/Cellar/gcc/13.2.0/bin/../lib/gcc/current/gcc/aarch64-apple-darwin23/13/../../../../../../include/c++/13"/>
+					<Add directory="/opt/homebrew/Cellar/gcc/13.2.0/bin/../lib/gcc/current/gcc/aarch64-apple-darwin23/13/../../../../../../include/c++/13/aarch64-apple-darwin23"/>
+					<Add directory="/opt/homebrew/Cellar/gcc/13.2.0/bin/../lib/gcc/current/gcc/aarch64-apple-darwin23/13/../../../../../../include/c++/13/backward"/>
+					<Add directory="/opt/homebrew/Cellar/gcc/13.2.0/bin/../lib/gcc/current/gcc/aarch64-apple-darwin23/13/include"/>
+					<Add directory="/opt/homebrew/Cellar/gcc/13.2.0/bin/../lib/gcc/current/gcc/aarch64-apple-darwin23/13/include-fixed"/>
+					<Add directory="/Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/System/Library/Frameworks"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/15.0.0/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 Compiler"/>
+					<CompileFile command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="Compiler/fast">
+				<Option output="/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Compiler" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/opt/homebrew/Cellar/gcc/13.2.0/bin/../lib/gcc/current/gcc/aarch64-apple-darwin23/13/../../../../../../include/c++/13"/>
+					<Add directory="/opt/homebrew/Cellar/gcc/13.2.0/bin/../lib/gcc/current/gcc/aarch64-apple-darwin23/13/../../../../../../include/c++/13/aarch64-apple-darwin23"/>
+					<Add directory="/opt/homebrew/Cellar/gcc/13.2.0/bin/../lib/gcc/current/gcc/aarch64-apple-darwin23/13/../../../../../../include/c++/13/backward"/>
+					<Add directory="/opt/homebrew/Cellar/gcc/13.2.0/bin/../lib/gcc/current/gcc/aarch64-apple-darwin23/13/include"/>
+					<Add directory="/opt/homebrew/Cellar/gcc/13.2.0/bin/../lib/gcc/current/gcc/aarch64-apple-darwin23/13/include-fixed"/>
+					<Add directory="/Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/usr/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/SDKs/MacOSX14.sdk/System/Library/Frameworks"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/lib/clang/15.0.0/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/usr/include"/>
+					<Add directory="/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 Compiler/fast"/>
+					<CompileFile command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/opt/homebrew/Cellar/make/4.4.1/bin/gmake -j8 -f &quot;/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/GA.cpp">
+			<Option target="Compiler"/>
+		</Unit>
+		<Unit filename="/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/GA.h">
+			<Option target="Compiler"/>
+		</Unit>
+		<Unit filename="/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/LA.cpp">
+			<Option target="Compiler"/>
+		</Unit>
+		<Unit filename="/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/LA.h">
+			<Option target="Compiler"/>
+		</Unit>
+		<Unit filename="/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/main.cpp">
+			<Option target="Compiler"/>
+		</Unit>
+		<Unit filename="/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

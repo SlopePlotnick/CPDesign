@@ -1,0 +1,90 @@
+{
+	"kind" : "toolchains",
+	"toolchains" : 
+	[
+		{
+			"compiler" : 
+			{
+				"id" : "AppleClang",
+				"implicit" : 
+				{
+					"includeDirectories" : 
+					[
+						"/usr/include",
+						"/Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/usr/include"
+					],
+					"linkDirectories" : [],
+					"linkFrameworkDirectories" : [],
+					"linkLibraries" : []
+				},
+				"path" : "/usr/bin/clang",
+				"version" : "15.0.0.15000040"
+			},
+			"language" : "C",
+			"sourceFileExtensions" : 
+			[
+				"c",
+				"m"
+			]
+		},
+		{
+			"compiler" : 
+			{
+				"id" : "GNU",
+				"implicit" : 
+				{
+					"includeDirectories" : 
+					[
+						"/opt/homebrew/Cellar/gcc/13.2.0/include/c++/13",
+						"/opt/homebrew/Cellar/gcc/13.2.0/include/c++/13/aarch64-apple-darwin23",
+						"/opt/homebrew/Cellar/gcc/13.2.0/include/c++/13/backward",
+						"/opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/gcc/aarch64-apple-darwin23/13/include",
+						"/opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/gcc/aarch64-apple-darwin23/13/include-fixed",
+						"/Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/usr/include",
+						"/Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/System/Library/Frameworks"
+					],
+					"linkDirectories" : 
+					[
+						"/opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/gcc/aarch64-apple-darwin23/13",
+						"/opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current/gcc",
+						"/opt/homebrew/Cellar/gcc/13.2.0/lib/gcc/current",
+						"/Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/usr/lib"
+					],
+					"linkFrameworkDirectories" : 
+					[
+						"/Library/Developer/CommandLineTools/SDKs/MacOSX14.0.sdk/System/Library/Frameworks"
+					],
+					"linkLibraries" : 
+					[
+						"stdc++",
+						"emutls_w",
+						"gcc",
+						"gcc"
+					]
+				},
+				"path" : "/opt/homebrew/Cellar/gcc/13.2.0/bin/g++-13",
+				"version" : "13.2.0"
+			},
+			"language" : "CXX",
+			"sourceFileExtensions" : 
+			[
+				"C",
+				"M",
+				"c++",
+				"cc",
+				"cpp",
+				"cxx",
+				"mm",
+				"mpp",
+				"CPP",
+				"ixx",
+				"cppm"
+			]
+		}
+	],
+	"version" : 
+	{
+		"major" : 1,
+		"minor" : 0
+	}
+}

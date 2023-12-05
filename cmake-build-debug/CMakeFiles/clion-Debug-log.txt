@@ -1,0 +1,4 @@
+/Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=/opt/homebrew/Cellar/make/4.4.1/bin/gmake -DCMAKE_C_COMPILER=/usr/bin/clang -DCMAKE_CXX_COMPILER=/opt/homebrew/Cellar/gcc/13.2.0/bin/g++-13 -G "CodeBlocks - Unix Makefiles" -S /Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码 -B /Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug
+-- Configuring done (0.0s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug

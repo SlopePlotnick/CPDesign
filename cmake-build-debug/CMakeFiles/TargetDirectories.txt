@@ -1,0 +1,3 @@
+/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/CMakeFiles/Compiler.dir
+/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/plotnickslope/Desktop/学习资料/编译原理/课设/代码/cmake-build-debug/CMakeFiles/rebuild_cache.dir
