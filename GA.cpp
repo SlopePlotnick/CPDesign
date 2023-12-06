@@ -293,14 +293,14 @@ void ReadLine() {
 
 // 恐慌模式处理
 void panic(int type) {
-    // 找到statement的first集中的元素
+    // 恐慌到匹配statement
     if (type == 1) {
         while (unit.key != "ID" && unit.value != "if" && unit.value != "while" && unit.value != "call" && unit.value != "begin" && unit.value != "read" && unit.value != "write") {
             ReadLine();
         }
     }
-    // 找到block的first集中的元素
-    else {
+    // 恐慌到匹配block
+    else if (type == 2) {
         while (unit.value != "const" && unit.value != "var" && unit.value != "procedure" && unit.key != "ID" && unit.value != "if" && unit.value != "while" && unit.value != "call" && unit.value != "begin" && unit.value != "read" && unit.value != "write") {
             ReadLine();
         }
@@ -639,207 +639,301 @@ void Statement() {
         if (unit.value == ")")
             // 无参数传递的情况 此处SymTable[i].value是要跳转的指令地址
             gen(CAL, lev - SymTable[i].level, SymTable[i].value);
-
-    }
-    else if (unit.key == "RESERVED" && unit.value == "read") {
-        ReadLine();
-        if ((unit.key == "SOP" && unit.value == "(") || *errorType == 20) {
-            if (*errorType == 20 && unit.value != "(")
-                errorType++;
-            else
-                ReadLine();
-            if (unit.key == "ID" || *errorType == 19) {
-                if (*errorType == 19 && unit.key != "ID")
-                    errorType++;
-                else
-                    ReadLine();
-                while (unit.key == "SOP" && unit.value == ",") {
-                    ReadLine();
-                    if (unit.key == "ID" || *errorType == 19) {
-                        if (*errorType == 19 && unit.key != "ID")
-                            errorType++;
-                        else
-                            ReadLine();
-                    } else {
-                        ThrowError(19);
-                        return;
-                    }
-                }
-                if (unit.key == "SOP" && unit.value == ")" || *errorType == 20) {
-                    if (*errorType == 20 && unit.value != ")")
-                        errorType++;
-                    else
-                        ReadLine();
-                } else {
-                    ThrowError(20);
-                    return;
-                }
-            } else {
-                ThrowError(19);
-                return;
-            }
-
-        } else {
-            ThrowError(20);
-            return;
-        }
-
-    } else if (unit.key == "RESERVED" && unit.value == "write") {
-        ReadLine();
-        if (unit.key == "SOP" && unit.value == "(" || *errorType == 21) {
-            if (*errorType == 21 && unit.value != "(")
-                errorType++;
-            else
-                ReadLine();
+        if (unit.value == "+" || unit.value == "-" || unit.key == "ID" || unit.key == "INT" || unit.value == "(") {
             Exp();
 
             if (error) return;
-            while (unit.key == "SOP" && unit.value == ",") {
+            cnt++;
+
+            while (unit.value == ",") {
                 ReadLine();
                 Exp();
 
                 if (error) return;
+                cnt++;
             }
-            if (unit.key == "SOP" && unit.value == ")" || *errorType == 21) {
-                if (*errorType == 21 && unit.value != ")")
-                    errorType++;
-                else
-                    ReadLine();
-            } else {
-                ThrowError(21);
-                return;
+            if (cnt != SymTable[i].size)
+                ThrowError(22); // 参数个数不匹配
+
+            for (int j = 0; j < SymTable[i].size; j++) {
+                // 此处对STO的参数进行解释
+                // 此时的i指向的是符号表中被调用的过程的id 对于被调用的参数而言 使用值的level要在过程id所处的level上再深一层 所以用lev - (SymTable[i].level + 1)表示参数的层差
+                // 对于参数的相对地址 相对基址而言 在其上面3 - 1的位置（相当于原来的栈顶+3）参数按顺序从上往下摆 第一个参数的位置还要再加上size 此后对于每一个参数 按顺序减去对应的j即可
+                gen(STO, lev - (SymTable[i].level + 1), SymTable[i].size + 3 - 1 - j);
             }
-        } else {
-            ThrowError(21);
+            gen(CAL, lev - SymTable[i].level, SymTable[i].value); // 对过程id value中存储的是被调用程序的入口地址
+        }
+
+        if (unit.value == ")")
+            ReadLine();
+        else
+        {
+            ThrowError(3); // 右括号缺失
+            return;
+        }
+    }
+    else if (unit.key == "RESERVED" && unit.value == "read") {
+        ReadLine();
+        if (unit.value == "(")
+            ReadLine();
+        else {
+            ThrowError(4); // 左括号缺失
             return;
         }
 
-    } else if (unit.key == "ID") {
+        if (unit.key == "ID") {
+            if (!is_pre_level(unit.value, lev)) {
+                ThrowError(18); // id未定义
+                return;
+            }
+            else {
+                int i = position(unit.value);
+                SymTable[i].num++;
+                if (SymTable[i].type == VAR) {
+                    gen(RED, 0, 0);
+                    gen(STO, lev - SymTable[i].level, SymTable[i].addr);
+                }
+                else {
+                    ThrowError(19); // 不是变量
+                    return;
+                }
+            }
+            ReadLine();
+        }
+        else {
+            ThrowError(6); // 缺少id
+            return;
+        }
+
+        while (unit.value == ",") {
+            ReadLine();
+
+            if (unit.key != "ID") {
+                ThrowError(6); // 缺少id
+                return;
+            }
+
+            // 能走到这里说明key肯定是id
+            if (!is_pre_level(unit.value, lev)) {
+                ThrowError(18); // id未定义
+                return;
+            }
+            else {
+                int i = position(unit.value);
+                SymTable[i].num++;
+
+                if (SymTable[i].type == VAR) {
+                    gen(RED, 0, 0);
+                    gen(STO, lev - SymTable[i].level, SymTable[i].addr);
+                }
+                else {
+                    ThrowError(19);
+                    return;
+                }
+            }
+            ReadLine();
+        }
+
+        if (unit.value == ")")
+            ReadLine();
+        else {
+            ThrowError(3); // 右括号缺失
+            return;
+        }
+    }
+    else if (unit.key == "RESERVED" && unit.value == "write") {
         ReadLine();
-        if (unit.key == "AOP" && unit.value == ":=" || *errorType == 4) {
-            if (*errorType == 4 && unit.value != ":=")
-                errorType++;
-            else
-                ReadLine();
+
+        if (unit.value == "(")
+            ReadLine();
+        else {
+            ThrowError(4); // 左括号缺失
+            return;
+        }
+
+        Exp();
+
+        if (error) return;
+        gen(WRT, 0, 0);
+        while (unit.value == ",") {
+            ReadLine();
             Exp();
 
             if (error) return;
-        } else {
-            ThrowError(4);
+            gen(WRT, 0, 0);
+        }
+
+        gen(OPR, 0, 14); // 换行
+
+        if (unit.value == ")")
+            ReadLine();
+        else {
+            ThrowError(3); // 右括号缺失
             return;
         }
-    } else {
+
+    }
+    else if (unit.key == "ID") {
+        string name = unit.value; // 预先存储变量名
+        ReadLine();
+
+        if (unit.key == "AOP" && unit.value == ":=")
+            ReadLine();
+        else {
+            ThrowError(8); // 缺少赋值号
+            return;
+        }
+
+        int i = position(name);
+        SymTable[i].num++;
+
+        Exp();
+
+        if (error) return;
+        if (!is_pre_level(name, lev)) {
+            ThrowError(18, name); // id未定义
+            return;
+        }
+        else {
+            if (SymTable[i].type == VAR)
+                gen(STO, lev - SymTable[i].level, SymTable[i].addr);
+            else {
+                ThrowError(19); // 不是变量
+                return;
+            }
+        }
+    }
+    else {
         Body();
     }
 }
 
 //<body> → begin <statement>{;<statement>}end
 void Body() {
-    if (unit.key == "RESERVED" && unit.value == "begin" || *errorType == 12) {
-        if (*errorType == 12 && unit.value != "begin")
-            errorType++;
-        else
-            ReadLine();
+    if (unit.key == "RESERVED" && unit.value == "begin")
+        ReadLine();
+    else
+        ThrowError(11); // begin缺失
+
+    panic(1); // 恐慌模式
+    Statement();
+
+    while (unit.value == ";") {
+        ReadLine();
+
+        panic(1);
         Statement();
-
-        if (error) return;
-        while (unit.key == "EOP" && unit.value == ";") {
-            ReadLine();
-            if (unit.value == "end") {
-                if (*errorType != 25)
-                    ThrowError(25);
-                break;
-            }
-            Statement();
-
-            if (error) return;
-        }
-        if (*errorType == 25) {
-            errorType++;
-        }
-        if (unit.key == "RESERVED" && unit.value == "end" || *errorType == 13) {
-            if (*errorType == 13 && unit.value != "end")
-                errorType++;
-            else
-                ReadLine();
-        } else {
-            ThrowError(13);
-        }
-    } else {
-        ThrowError(12);
     }
 
+    if (unit.value == "end")
+        ReadLine();
+    else {
+        ThrowError(12); // 缺少end
+        return;
+    }
 }
 
 void Block();
 
 //<proc> → procedure <id>（[<id>{,<id>}]）;<block>{;<proc>}
+// 保留字procedure在外层判断
 void Proc() {
-    if (unit.key == "ID" || *errorType == 9) {
-        if (*errorType == 9 && unit.key != "ID")
-            errorType++;
+    int cnt = 0;
+    int tx0;
+
+    if (unit.key == "ID") {
+        if (is_same_level(unit.value, lev)) {
+            ThrowError(23); // 多重定义 过程不可多重定义
+            return;
+        }
+        tx0 = tx + 1; // 预先记录过程在符号表中的位置 便于之后对其表项中的size（参数个数）进行回填
+        addProcedure(unit.value, lev, dx); // 过程进符号表
+        lev++; // 出现过程 层数+1
+        ReadLine();
+
+        if (unit.value != "(") {
+            ThrowError(4); // 左括号缺失
+            return;
+        }
         else
             ReadLine();
-        if (unit.key == "SOP" && unit.value == "(" || *errorType == 10) {
-            if (*errorType == 10 && unit.value != "(")
-                errorType++;
-            else
-                ReadLine();
-            if (unit.value != ")" && unit.value != ";") {
-                if (unit.key == "ID" || *errorType == 11) {
-                    if (*errorType == 11 && unit.key != "ID")
-                        errorType++;
-                    ReadLine();
 
-                    while (unit.value == "," && unit.key == "SOP") {
-                        ReadLine();
-                        if (unit.key == "ID" || *errorType == 11) {
-                            if (unit.key != "ID" && *errorType == 11)
-                                errorType++;
-                            else
-                                ReadLine();
-                        } else {
-                            ThrowError(11); // Missing id
-                        }
-                    }
-                } else {
-                    ThrowError(11);
+        if (unit.key == "ID") {
+            // 这里注意 在活动记录中最底下还有三个东西(老sp, 静态链, 返回地址) 因此变量的偏移量要加3
+            addVar(unit.value, lev, cnt + 3);
+            cnt++;
+            SymTable[tx0].size = cnt;
+
+            ReadLine();
+            while (unit.value == "," || unit.key == "ID") {
+                if (unit.value == ",")
+                    ReadLine();
+                else {
+                    ThrowError(5); // 缺少逗号
                     return;
                 }
-            }
-            if (unit.key == "SOP" && unit.value == ")" || *errorType == 10) {
-                if (*errorType == 10 && unit.value != ")")
-                    errorType++;
-                else
+
+                if (unit.key == "ID") {
+                    addVar(unit.value, lev, cnt + 3);
+                    cnt++;
+                    SymTable[tx0].size = cnt;
                     ReadLine();
-
-                if (unit.key == "EOP" && unit.value == ";" || *errorType == 2) {
-                    if (*errorType == 2 && unit.value != ";")
-                        errorType++;
-                    else
-                        ReadLine();
-                    Block();
-
-                    if (error) return;
-
-                    while (unit.key == "EOP" && unit.value == ";") {
-                        ReadLine();
-                        Proc();
-
-                        if (error) return;
-                    }
-                } else {
-                    ThrowError(2);
                 }
-            } else {
-                ThrowError(10);
+                else {
+                    ThrowError(6);
+                    //恐慌模式
+                    while (unit.value != ")" && unit.key != "ID" && unit.value != ";" && unit.value != "const" && unit.value != "var" && unit.value != "procedure")
+                        ReadLine();
+                    if (unit.key == "ID")
+                        ReadLine();
+                }
             }
-        } else {
-            ThrowError(10);
+
+            if (unit.value != ")") {
+                ThrowError(3);
+                return;
+            }
+            else
+                ReadLine();
         }
-    } else {
-        ThrowError(9);
+        else if (unit.value == ")") {
+            // 无参数传递
+            ReadLine();
+        }
+        else {
+            ThrowError(3); // 右括号缺失
+            // 恐慌模式
+            while(unit.value != ")" && unit.value != ";" && unit.value != "const" && unit.value != "var" && unit.value != "procedure")
+                ReadLine();
+        }
     }
+    else {
+        ThrowError(6); // 过程名id缺失
+        return;
+    }
+
+    if (unit.value == ";")
+        ReadLine();
+    else {
+        ThrowError(2); //分号缺失
+        panic(2);
+    }
+
+    Block(); // 假设Block函数中如果出现proc 会在匹配proc出来后将lev恢复为进入Block时的层数 此层不需要做处理
+
+    // 假设不会出现procedure关键字缺失的情况
+    // 此时的lev为进入Block时的层数 若要进行下面的并列函数匹配 每次进入proc匹配前都要先将lev恢复
+    int old_lev = lev; // 预先存储当前的层数
+    while (unit.value == ";") {
+        ReadLine();
+        // 这里即将进行的proc匹配和当前层的proc是同层的 在进入proc匹配前应先恢复正常的层数
+        lev = old_lev - 1;
+        ReadLine(); // 匹配procedure关键字
+        Proc(); // 从procedure的下一个开始匹配
+    }
+
+    // 结束函数前将lev恢复为预先存储的lev 注意正常情况下这里的lev相当于进入这层proc的lev + 1
+    lev = old_lev;
 }
 
 //<vardecl> → var <id>{,<id>};
@@ -934,69 +1028,55 @@ void Condecl() {
 
 //<block> → [<condecl>][<vardecl>][<proc>]<body>
 void Block() {
-    if (unit.value == "const" && unit.key == "RESERVED" && !error) {
+    int dx0;
+    int tx0;
+    int n;
+    int cx0 = cx; // 记录跳转指令的位置
+    gen(JMP, 0, 0);
+    n = findproc(tx); // 在当前的符号表中从后往前找procudure
+    if (n != -1) {
+        // 进入block之前有过程
+        tx0 = tx - SymTable[n].size; // 保存旧符号表地址
+        dx0 = dx; // 保存旧运行栈地址
+        dx = 3 + SymTable[n].size; // 新运行栈地址
+    }
+    else
+        // 进入block之前没有过程
+        dx = 3;
+
+    if (unit.value == "const" && unit.key == "RESERVED") {
         ReadLine();
         Condecl();
 
         if (error) return;
-    } else if (unit.key == "ID" && *errorType != 8 && !error) {
-        ThrowError(8); // Cannot resolve type
-//        scary model
-        while (unit.key != "EOP" && unit.key != "RESERVED") {
-            ReadLine();
-        }
-        ReadLine();
-    } else if (*errorType == 8 && !error) {
-        errorType++;
-        while (unit.key != "EOP" && unit.key != "RESERVED") {
-            ReadLine();
-        }
-        ReadLine();
     }
 
-    if (unit.value == "var" && unit.key == "RESERVED" && !error) {
+    if (unit.value == "var" && unit.key == "RESERVED") {
         ReadLine();
         Vardecl();
 
         if (error) return;
-    } else if (unit.key == "ID" && *errorType != 8 && !error) {
-        ThrowError(8); // Cannot resolve type
-        while (unit.key != "EOP" && unit.key != "RESERVED") {
-            ReadLine();
-        }
-        ReadLine();
-    } else if (*errorType == 8 && !error) {
-        errorType++;
-        while (unit.key != "EOP" && unit.key != "RESERVED") {
-            ReadLine();
-        }
-        ReadLine();
     }
 
-    if (unit.value == "procedure" && unit.key == "RESERVED" && !error) {
+    if (unit.value == "procedure" && unit.key == "RESERVED") {
         ReadLine();
         Proc();
 
         if (error) return;
-    } else if (unit.key == "ID" && *errorType != 8 && !error) {
-        ThrowError(8); // Cannot resolve type
-        while (unit.key != "EOP" && unit.key != "RESERVED") {
-            ReadLine();
-        }
-        ReadLine();
-    } else if (*errorType == 8 && !error) {
-        errorType++;
-        while (unit.key != "EOP" && unit.key != "RESERVED") {
-            ReadLine();
-        }
-        ReadLine();
+        // 注意这里从proc出来的时候 lev相当于进入block时的lev + 1 所以要减1复原
+        lev--;
     }
 
-    if (!error) {
-        Body();
-
-        if (error) return;
+    INT_pos = cx;
+    gen(INT, 0, dx);
+    Pcode[cx0].a = cx - 1; // 回填 让JMP指令跳到INT指令的位置
+    if (n != -1) {
+        SymTable[n].value = cx - 1; // 调用子过程的入口地址
     }
+
+    Body();
+    gen(OPR, 0, 0); // 返回调用点并出栈
+    dx = dx0; //恢复老sp
 }
 
 //<prog> → program <id>；<block>

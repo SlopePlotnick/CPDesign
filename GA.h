@@ -87,7 +87,7 @@ string::iterator itLine;
 int tx = 0; // 符号表下标指针 符号表地址从1开始
 int dx = 0; // 变量在运行栈中相对本过程基地址的偏移量
 int cx = 0; // 指令下一地址
-int lev = 0;
+int lev = 0; // 当前层数
 int dataStack[N] = {0}; // 数据栈
 int T; // 栈顶寄存器top
 int B; // 栈基址寄存器sp
