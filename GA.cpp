@@ -124,7 +124,6 @@ void interpreter() {
     P = 0; // 下条指令位置
     B = 0; // 基址
     T = 0; // 数据栈顶位置
-    int t;
 
     do {
         I = P;
@@ -215,16 +214,43 @@ void interpreter() {
                 if (Pcode[I].l != -1) {
                     dataStack[Pcode[I].a + getBase(B, Pcode[I].l)] = dataStack[T - 1];
                 }
-                // 用l==-1来表示传参？
+                // 用l==-1来表示参数传递
                 else {
+                    //将当前栈顶的值（参数）放到栈顶上面3个偏移量的位置 并将当前栈顶元素出栈
                     dataStack[T + 2] = dataStack[T - 1];
                 }
                 T--;
                 break;
             case 4: // CAL
                 dataStack[T] = B; // 老sp
-                dataStack[T + 1] = P; // 返回地址
-                dataStack[T + 2] = Pcode[I].a + getBase(B, Pcode[I].l); // 静态链（直接外层）
+                dataStack[T + 1] = getBase(B, Pcode[I].l); // 静态链（直接外层）
+                dataStack[T + 2] = P; // 返回地址 下一条指令地址
+
+                B = T; // 新sp
+                P = Pcode[I].a; // 被调用程序入口
+                break;
+            case 5: // INT
+                T = B + Pcode[I].a;
+                break;
+            case 6: // JMP
+                P = Pcode[I].a;
+                break;
+            case 7: // JPC
+                if (!dataStack[T - 1]) {
+                    //条件为假时跳转
+                    P = Pcode[I].a;
+                }
+                break;
+            case 8: // RED
+                cout << "Please input a number:" << endl;
+                int t;
+                cin >> t;
+                dataStack[T] = t;
+                T++;
+                break;
+            case 9: // WRT
+                cout << dataStack[T - 1];
+                break;
         }
     } while (P);
 }
@@ -265,153 +291,119 @@ void ReadLine() {
     }
 }
 
-void ThrowError(int type) {
+// 恐慌模式处理
+void panic(int type) {
+    // 找到statement的first集中的元素
+    if (type == 1) {
+        while (unit.key != "ID" && unit.value != "if" && unit.value != "while" && unit.value != "call" && unit.value != "begin" && unit.value != "read" && unit.value != "write") {
+            ReadLine();
+        }
+    }
+    // 找到block的first集中的元素
+    else {
+        while (unit.value != "const" && unit.value != "var" && unit.value != "procedure" && unit.key != "ID" && unit.value != "if" && unit.value != "while" && unit.value != "call" && unit.value != "begin" && unit.value != "read" && unit.value != "write") {
+            ReadLine();
+        }
+    }
+}
+
+void ThrowError(int type, string name = "") {
     error = true; // change the error status
     *errorType = type; // push current error into the stack
     errorType++; // move the pointer of the stack's top after pushing a new item
 
-    switch (type) {
-        //0 ok test
-        case 0:
-            cout << "[Grammar ERROR] " << " [" << unit.line << "," << unit.column << "] " << "Spell error \"program\""
-                 << endl;
+    switch (type)
+    {
+        case 0://拼写错误
+            printf("[Grammar error][%d,%d] Spell error \"program\"\n", unit.line, unit.column);
             break;
-            //1 ok test
-        case 1:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing identifier after \"program\"" << endl;
+        case 1://program后缺少标识符
+            printf("[Grammar error][%d,%d] Missing identifier after \"program\"\n", unit.line, unit.column);
             break;
-            //2 ok test
-        case 2:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing end character \";\"" << endl;
+        case 2://缺少分号
+            printf("[Grammar error][%d,%d] Missing \";\" \n", former_unit.line, former_unit.column);
             break;
-            //3 ok test
-        case 3:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing identifier in \"const\"" << endl;
+        case 3://缺少右括号
+            printf("[Grammar error][%d,%d] Missing \")\" \n", unit.line, unit.column);
             break;
-            //4 ok test
-        case 4:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing assignment operation in const" << endl;
+        case 4://缺少左括号
+            printf("[Grammar error][%d,%d] Missing \"(\" \n", unit.line, unit.column);
             break;
-            //5 ok test
-        case 5:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing assignment integer in const" << endl;
+        case 5://缺少逗号
+            printf("[Grammar error][%d,%d] Missing \",\" \n", unit.line, unit.column);
             break;
-            //6 ok test
-        case 6:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing identifier after \"var\"" << endl;
+        case 6://缺少id
+            printf("[Grammar error][%d,%d] Missing identifier \n", unit.line, unit.column);
             break;
-            //7 ok test
-        case 7:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing identifier after \",\" in var" << endl;
+        case 7://缺少比较符
+            printf("[Grammar error][%d,%d] Missing compare operator \n", unit.line, unit.column);
             break;
-            //8 ok test
-        case 8:
-            cout << "[Grammar ERROR] " << " [" << unit.line << "," << unit.column << "] "
-                 << "Cannot resolve type in block \"" << unit.value << "\"" << endl;
+        case 8://缺少赋值号
+            printf("[Grammar error][%d,%d] Missing assignment operator \n", unit.line, unit.column);
             break;
-            //9 ok test
-        case 9:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing identifier after \"procedure\"" << endl;
+        case 9://缺少then
+            printf("[Grammar error][%d,%d] Missing \"then\" \n", unit.line, unit.column);
             break;
-            //10 ok test
-        case 10:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing parentheses in \"procedure\"" << endl;
+        case 10://缺少do
+            printf("[Grammar error][%d,%d] Missing \"do\" \n", unit.line, unit.column);
             break;
-            //11 ok test
-        case 11:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Wrong ID in \"procedure\"" << endl;
+        case 11://缺少begin
+            printf("[Grammar error][%d,%d] Missing \"begin\" \n", unit.line, unit.column);
             break;
-            //12 ok 写测试样例时不能让缺失的begin在procedure里 test
-        case 12:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing word \"begin\"" << endl;
+        case 12://缺少end
+            printf("[Grammar error][%d,%d] Missing \"end\" \n", unit.line, unit.column);
             break;
-            //13 ok test
-        case 13:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing word \"end\"" << endl;
+        case 13://常量赋值号后面应为数字
+            printf("[Grammar error][%d,%d] after\":=\" should be a number  \n", unit.line, unit.column);
             break;
-            //14 没做
-        case 14:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing statement identifier" << endl;
+        case 14://缺少:
+            printf("[Grammar error][%d,%d] Missing \":\" \n", unit.line, unit.column);
             break;
-            //15 ok test
-        case 15:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing word \"then\"" << endl;
+        case 15://缺少:=
+            printf("[Grammar error][%d,%d] Missing \":=\" \n", unit.line, unit.column);
             break;
-            //16 ok test
-        case 16:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing word \"do\"" << endl;
+        case 16://缺少program
+            printf("[Grammar error][%d,%d] Missing \"program\" \n", unit.line, unit.column);
             break;
-            //17 ok test
-        case 17:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing identifier in \"call\"" << endl;
+        case 17://存在多余的单词
+            printf("[Grammar error][%d,%d] the word is superfluous \n", unit.line, unit.column);
             break;
-            //18 ok call中只做了右括号缺失的处理 test
-        case 18:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing right parentheses in \"call\"" << endl;
+        case 18://该变量未定义
+            if(name != "")
+                printf("[error][%d,%d] not exist %s\n", unit.line, unit.column, name.c_str());
+            else
+                printf("[error][%d,%d] not exist %s\n", unit.line, unit.column, unit.value.c_str());
             break;
-            //19 ok test
-        case 19:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing identifier in \"read\"" << endl;
+        case 19://不是变量
+            if(name != "")
+                printf("[error][%d,%d] %s is not a variable \n", unit.line, unit.column, name.c_str());
+            else
+                printf("[error][%d,%d] %s is not a variable \n", unit.line, unit.column, unit.value.c_str());
             break;
-            //20 ok test
-        case 20:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing parentheses in \"read\"" << endl;
+        case 20://不是常量
+            if(name != "")
+                printf("[error][%d,%d] %s is not a const \n", unit.line, unit.column, name.c_str());
+            else
+                printf("[error][%d,%d] %s is not a const \n", unit.line, unit.column, unit.value.c_str());
             break;
-            //21 ok test
-        case 21:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing parentheses in \"write\"" << endl;
+        case 21://不是过程
+            if(name != "")
+                printf("[error][%d,%d] %s is not a procedure \n", unit.line, unit.column, name.c_str());
+            else
+                printf("[error][%d,%d] %s is not a procedure \n", unit.line, unit.column, unit.value.c_str());
             break;
-            //22 ok test
-        case 22:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing the compare operator" << endl;
+        case 22://参数个数不匹配
+            printf("[error][%d,%d] The number of parameters does not match \n", unit.line, unit.column);
             break;
-            //23 ok test
-        case 23:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing right parentheses in facter" << endl;
+        case 23://多重定义
+            if(name != "")
+                printf("[error][%d,%d] Duplicate definition %s\n", unit.line, unit.column, name.c_str());
+            else
+                printf("[error][%d,%d] Duplicate definition %s\n", unit.line, unit.column, unit.value.c_str());
             break;
-            //24 ok test
-        case 24:
-            cout << "[Grammar ERROR] " << " [" << unit.line << "," << unit.column << "] " << "Wrong factor" << endl;
-            break;
-            //25 ok test
-        case 25:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Extra semicolon \";\" before \"end\"" << endl;
-            break;
-            //26 ok test
-        case 26:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing comma \",\" in \"var\"" << endl;
-            break;
-            //27 没做
-        case 27:
-            cout << "[Grammar ERROR] " << " [" << former_unit.line << "," << former_unit.column << "] "
-                 << "Missing comma \",\" in \"condecl\"" << endl;
-            break;
+
         default:
-            cout << "[Grammar ERROR] " << " [" << unit.line << "," << unit.column << "] " << "Unknown error" << endl;
+            printf("[error][%d,%d] Unknown error\n", unit.line, unit.column);
             break;
     }
 }
@@ -420,27 +412,45 @@ void Exp();
 
 //<factor>→<id>|<integer>|(<exp>)
 void Factor() {
-    if (unit.key == "ID" || *errorType == 24) {
-        if (unit.key != "ID" && unit.key != "INT" && unit.value != "(" && *errorType == 24)
-            errorType++; // jump error
+    if (unit.key == "ID") {
+        if (!is_pre_level(unit.value, lev))
+            ThrowError(18);
+        else {
+            // 已定义
+            int i = position(unit.value);
+            SymTable[i].num++;
+
+            // var类型
+            if (SymTable[i].type == VAR) {
+                gen(LOD, lev - SymTable[i].level, SymTable[i].addr);
+            }
+            // const类型
+            else if (SymTable[i].type == CONST) {
+                gen(LIT, 0, SymTable[i].value);
+            }
+            // 不是var和const类型
+            else {
+                ThrowError(19);
+                return;
+            }
+        }
+    }
+    else if (unit.key == "INT") {
+        gen(LIT, 0, s2i(unit.value));
         ReadLine();
-    } else if (unit.key == "INT") {
-        ReadLine();
-    } else if (unit.key == "SOP" && unit.value == "(") {
+    }
+    else if (unit.key == "SOP" && unit.value == "(") {
         ReadLine();
         Exp();
 
         if (error) return;
-        if ((unit.key == "SOP" && unit.value == ")") || *errorType == 23) {
-            if (unit.value != ")" && *errorType == 23)
-                errorType++;
-            else
-                ReadLine();
-        } else {
-            ThrowError(23);
-        }
-    } else {
-        ThrowError(24);
+        if (unit.value == ")")
+            ReadLine();
+        else
+            ThrowError(5); // 缺少右括号
+    }
+    else {
+        ThrowError(6); // 缺少标识符
     }
 }
 
@@ -450,27 +460,42 @@ void Term() {
 
     if (error) return;
     while (unit.value == "*" || unit.value == "/") {
+        string opr = unit.value;
         ReadLine();
         Factor();
 
         if (error) return;
+        if (opr == "*")
+            gen(OPR, 0, 4);
+        else
+            gen(OPR, 0, 5);
     }
 }
 
 
 //<exp> → [+|-]<term>{<aop><term>}
 void Exp() {
+    string opr;
     if (unit.value == "+" || unit.value == "-") {
+        opr = unit.value; // 预先记录操作符
         ReadLine();
     }
     Term();
 
     if (error) return;
+    if (opr == "-")
+        gen(OPR, 0, 1);
+
     while (unit.value == "+" || unit.value == "-") {
+        opr = unit.value; // 预先记录操作符
         ReadLine();
         Term();
 
         if (error) return;
+        if (opr == "+")
+            gen(OPR, 0, 2);
+        else if (opr == "-")
+            gen(OPR, 0, 3);
     }
 }
 
@@ -481,21 +506,36 @@ void Lexp() {
         Exp();
 
         if (error) return;
-    } else {
+        gen(OPR, 0, 6);
+    }
+    else {
         Exp();
 
         if (error) return;
-        if (unit.key == "COP" || *errorType == 22) {
-            if (unit.key != "COP" && *errorType == 22)
-                errorType++;
-            else
-                ReadLine();
-            Exp();
-
-            if (error) return;
-        } else {
-            ThrowError(22);
+        string opr = unit.value;
+        if (unit.key != "COP")
+        {
+            ThrowError(7); // 缺少比较符号
+            return;
         }
+        else {
+            ReadLine();
+            Exp();
+        }
+
+        // 若能走到下面 opr一定是运算符
+        if (opr == "=")
+            gen(OPR, 0, 7);
+        else if (opr == "<>")
+            gen(OPR, 0, 8);
+        else if (opr == "<")
+            gen(OPR, 0, 9);
+        else if (opr == ">=")
+            gen(OPR, 0, 10);
+        else if (opr == ">")
+            gen(OPR, 0, 11);
+        else if (opr == "<=")
+            gen(OPR, 0, 12);
     }
 
 }
@@ -516,79 +556,92 @@ void Statement() {
         Lexp();
 
         if (error) return;
-        if ((unit.key == "RESERVED" && unit.value == "then") || *errorType == 15) {
-            if (*errorType == 15 && unit.value != "then")
-                errorType++;
-            else
-                ReadLine();
-            Statement();
-
-            if (error) return;
-            if (unit.key == "RESERVED" && unit.value == "else") {
-                ReadLine();
-                Statement();
-
-                if (error) return;
-            }
-        } else {
-            ThrowError(15);
+        int cx1;
+        if (unit.key == "RESERVED" && unit.value == "then") {
+            cx1 = cx; // 记录待回填代码地址
+            gen(JPC, 0, 0);
+            ReadLine();
+        }
+        else {
+            ThrowError(9); // 缺少then
             return;
         }
 
-    } else if (unit.key == "RESERVED" && unit.value == "while") {
+        Statement();
+
+        if (error) return;
+        int cx2 = cx; // 记录待回填代码地址
+        gen(JMP, 0, 0);
+
+        //回填
+        Pcode[cx2].a = cx;
+        Pcode[cx1].a = cx;
+        if (unit.value == "else") {
+            ReadLine();
+            Statement();
+
+            if (error) return;
+            Pcode[cx2].a = cx; // 回填
+        }
+
+    }
+    else if (unit.key == "RESERVED" && unit.value == "while") {
+        int cx1 = cx;
         ReadLine();
         Lexp();
 
         if (error) return;
-        if ((unit.key == "RESERVED" && unit.value == "do") || *errorType == 16) {
-            if (*errorType == 16 && unit.value != "do")
-                errorType++;
-            else
-                ReadLine();
-            Statement();
-
-            if (error) return;
-        } else {
-            ThrowError(16);
+        int cx2 = cx;
+        gen(JPC, 0, 0);
+        if (unit.key == "RESERVED" && unit.value == "do")
+            ReadLine();
+        else {
+            ThrowError(16); // 缺少do
             return;
         }
 
-    } else if (unit.key == "RESERVED" && unit.value == "call") {
+        Statement();
+        gen(JMP, 0, cx1);
+        Pcode[cx2].a = cx;
+
+    }
+    else if (unit.key == "RESERVED" && unit.value == "call") {
         ReadLine();
-        if (unit.key == "ID" || *errorType == 17) {
-            if (*errorType == 17 && unit.key != "ID")
-                errorType++;
-            else
-                ReadLine();
-            if (unit.key == "SOP" && unit.value == "(") {
-                ReadLine();
-                if (unit.value != ")" && unit.value != ";" && unit.value != "end") {
-                    Exp();
+        int i; // 标识符在符号表中的位置
+        int cnt = 0; // 传递参数的个数
 
-                    if (error) return;
-                    while (unit.key == "SOP" && unit.value == ",") {
-                        ReadLine();
-                        Exp();
-
-                        if (error) return;
-                    }
-                }
-                if ((unit.key == "SOP" && unit.value == ")") || *errorType == 18) {
-                    if (*errorType == 18 && unit.value != ")")
-                        errorType++;
-                    else
-                        ReadLine();
-                } else {
-                    ThrowError(18);
-                    return;
-                }
+        // 在符号表中搜索（检查是否已经定义过）
+        if (unit.key == "ID") {
+            if (!is_pre_level(unit.value, lev)){
+                ThrowError(18); // 未定义
+                return;
             }
-        } else {
-            ThrowError(17);
+            else {
+               i = position(unit.value);
+               SymTable[i].num++;
+               if (SymTable[i].type != PROCEDURE) {
+                   ThrowError(21); // call后面的ID不是过程的名称
+                   return;
+               }
+            }
+            ReadLine();
+        }
+        else
+            ThrowError(6);
+
+        if (unit.value == "(")
+            ReadLine();
+        else {
+            ThrowError(4); // 左括号缺失
             return;
         }
 
-    } else if (unit.key == "RESERVED" && unit.value == "read") {
+        if (unit.value == ")")
+            // 无参数传递的情况 此处SymTable[i].value是要跳转的指令地址
+            gen(CAL, lev - SymTable[i].level, SymTable[i].value);
+
+    }
+    else if (unit.key == "RESERVED" && unit.value == "read") {
         ReadLine();
         if ((unit.key == "SOP" && unit.value == "(") || *errorType == 20) {
             if (*errorType == 20 && unit.value != "(")

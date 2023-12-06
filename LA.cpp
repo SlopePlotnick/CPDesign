@@ -131,11 +131,6 @@ int LA() {
         output << "# Program File Name: " << "input.txt" << endl;
         output << "# Language Set: PL/0" << endl;
         output << endl;
-
-        output << "# Generate Time: " << asctime(timeinfo);
-        output << "# Program File Name: " << "input.txt" << endl;
-        output << "# Language Set: PL/0" << endl;
-        output << endl;
     }
 
     string strToken;
@@ -173,11 +168,11 @@ int LA() {
             if (isLetter(ch)) {
                 // Fault: an ID cannot start with a number.
                 cout << "^" << ' ' << strToken << ' ' << "error" << ' ' << line << ' ' << column << endl;
-                cout << "[Program ERROR]"
+                cout << "[Lexical error]"
                      << " [" << line << "," << column << "] "
                      << "Invalid ID: ";
                 output << "^" << ' ' << strToken << ' ' << "error" << ' ' << line << ' ' << column << endl;
-                output << "[Program ERROR]"
+                output << "[Lexical error]"
                        << " [" << line << "," << column << "] "
                        << "Invalid ID: ";
 
@@ -244,11 +239,11 @@ int LA() {
                         output << ":= AOP" << ' ' << line << ' ' << column << endl;
                     } else {
                         cout << "^" << ' ' << strToken << ' ' << "error" << ' ' << line << ' ' << column << endl;
-                        cout << "[Program ERROR]"
+                        cout << "[Lexical error]"
                              << " [" << line << "," << column << "] "
                              << "Missing \"=\" near the \":\" ;" << endl;
                         output << "^" << ' ' << strToken << ' ' << "error" << ' ' << line << ' ' << column << endl;
-                        output << "[Program ERROR]"
+                        output << "[Lexical error]"
                                << " [" << line << "," << column << "] "
                                << "Missing \"=\" near the \":\" ;" << endl;
                         Retract();
@@ -287,11 +282,11 @@ int LA() {
                         strToken = Concat(strToken, ch);
                     }
                     cout << "^" << ' ' << strToken << ' ' << "error" << ' ' << line << ' ' << column << endl;
-                    cout << "[Program ERROR]"
+                    cout << "[Lexical error]"
                          << " [" << line << "," << column << "] "
                          << "Unknown character: " << strToken << endl;
                     output << "^" << ' ' << strToken << ' ' << "error" << ' ' << line << ' ' << column << endl;
-                    output << "[Program ERROR]"
+                    output << "[Lexical error]"
                            << " [" << line << "," << column << "] "
                            << "Unknown character: " << strToken << endl;
                     column++;
