@@ -144,7 +144,87 @@ void interpreter() {
                     case 1: // 取反
                         dataStack[T - 1] = -dataStack[T - 1];
                         break;
+                    case 2: // 相加
+                        dataStack[T - 2] = dataStack[T - 1] + dataStack[T - 2];
+                        T--;
+                        break;
+                    case 3: // 相减
+                        dataStack[T - 2] = dataStack[T - 2] - dataStack[T - 1];
+                        T--;
+                        break;
+                    case 4: // 相乘
+                        dataStack[T - 2] = dataStack[T - 2] * dataStack[T - 1];
+                        T--;
+                        break;
+                    case 5: // 相除
+                        dataStack[T - 2] = dataStack[T - 2] / dataStack[T - 1];
+                        T--;
+                        break;
+                    case 6: // 判断奇偶 奇数为1
+                        dataStack[T - 1] = dataStack[T - 1] % 2;
+                        break;
+                    case 7: // 判断相等
+                        if (dataStack[T - 1] == dataStack[T - 2]) {
+                            dataStack[T - 2] = 1;
+                        } else dataStack[T - 2] = 0;
+                        T--;
+                        break;
+                    case 8: // 判断不相等
+                        if (dataStack[T - 1] != dataStack[T - 2]) {
+                            dataStack[T - 2] = 1;
+                        } else dataStack[T - 2] = 0;
+                        T--;
+                        break;
+                    case 9: // 判断次栈顶是否小于栈顶
+                        if (dataStack[T - 2] < dataStack[T - 1]) {
+                            dataStack[T - 2] = 1;
+                        } else dataStack[T - 2] = 0;
+                        T--;
+                        break;
+                    case 10: // 判断次栈顶是否不小于栈顶
+                        if (dataStack[T - 2] >= dataStack[T - 1]) {
+                            dataStack[T - 2] = 1;
+                        } else dataStack[T - 2] = 0;
+                        T--;
+                        break;
+                    case 11: // 判断次栈顶是否大于栈顶
+                        if (dataStack[T - 2] > dataStack[T - 1]) {
+                            dataStack[T - 2] = 1;
+                        } else dataStack[T - 2] = 0;
+                        T--;
+                        break;
+                    case 12: // 判断次栈顶是否不大于栈顶
+                        if (dataStack[T - 2] <= dataStack[T - 1]) {
+                            dataStack[T - 2] = 1;
+                        } else dataStack[T - 2] = 0;
+                        T--;
+                        break;
+                    case 13: // 输出至屏幕
+                        cout << dataStack[T - 1];
+                        break;
+                    case 14: // 输出换行
+                        cout << endl;
+                        break;
                 }
+                break;
+            case 2: // LOD
+                dataStack[T] = dataStack[Pcode[I].a + getBase(B, Pcode[I].l)];
+                T++;
+                break;
+            case 3: // STO
+                if (Pcode[I].l != -1) {
+                    dataStack[Pcode[I].a + getBase(B, Pcode[I].l)] = dataStack[T - 1];
+                }
+                // 用l==-1来表示传参？
+                else {
+                    dataStack[T + 2] = dataStack[T - 1];
+                }
+                T--;
+                break;
+            case 4: // CAL
+                dataStack[T] = B; // 老sp
+                dataStack[T + 1] = P; // 返回地址
+                dataStack[T + 2] = Pcode[I].a + getBase(B, Pcode[I].l); // 静态链（直接外层）
         }
     } while (P);
 }
