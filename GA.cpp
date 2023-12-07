@@ -938,69 +938,117 @@ void Proc() {
 
 //<vardecl> → var <id>{,<id>};
 void Vardecl() {
-    if (unit.key == "ID" || *errorType == 6) {
-        if (unit.key != "ID" && *errorType == 6)
-            errorType++;
-        else
-            ReadLine();
-        while (unit.value == "," && unit.key == "SOP" || *errorType == 26) {
-            if (*errorType == 26 && unit.value != ",")
-                errorType++;
-            else
-                ReadLine();
-            if (unit.key == "ID" || *errorType == 7) {
-                if (unit.key != "ID" && *errorType == 7)
-                    errorType++;
-                else
-                    ReadLine();
-            } else {
-                ThrowError(7);// Missing ID
-            }
-        }
-        if (unit.key == "ID") {
-            ThrowError(26);
+    if (unit.key == "ID") {
+        if (is_same_level(unit.value, lev)) {
+            ThrowError(23); // 重复定义
             return;
         }
-        if (unit.value == ";" && unit.key == "EOP" || *errorType == 2) {
-            if (*errorType == 2 && unit.value != ";")
-                errorType++;
-            else
-                ReadLine();
-        } else {
-            ThrowError(2); // Missing EOP
-        }
-    } else {
-        ThrowError(6); // Missing ID
+
+        addVar(unit.value, lev, dx);
+        dx++;
+        ReadLine();
     }
+    else {
+        ThrowError(6); // 标识符缺失
+        // 恐慌模式
+        while (unit.value != "," && unit.key != "ID" && unit.value != ";")
+            ReadLine();
+    }
+
+    while (unit.value == "," || unit.key == "ID") {
+        if (unit.key == "ID") {
+            ThrowError(5); // 逗号缺失
+            return;
+        }
+        else {
+            ReadLine();
+
+            if (unit.key == "ID") {
+                if (is_same_level(unit.value, lev)) {
+                    ThrowError(23); // 重复定义
+                    return;
+                }
+
+                addVar(unit.value, lev, dx);
+                dx++;
+                ReadLine();
+            }
+            else {
+                ThrowError(6); // 标识符缺失
+                // 恐慌模式
+                while (unit.value != "," && unit.key != "ID" && unit.value != ";")
+                    ReadLine();
+            }
+        }
+    }
+
+    if (unit.value == ";")
+        ReadLine();
+    else
+        ThrowError(2); // 分号缺失
 }
 
 //<const> → <id>:=<integer>
 void Const() {
-    if (unit.key == "ID" || *errorType == 3) {
-        if (unit.key != "ID" && *errorType == 3)
-            errorType++;
-        else
+    string name;
+    if (unit.key == "ID") {
+        name = unit.value;
+        ReadLine();
+    }
+    else {
+        ThrowError(6); // 标识符缺失
+        // 恐慌模式
+        while (unit.value != ":=" && unit.value != "=" && unit.value != ";")
+            ReadLine();
+        if (unit.value == ";") {
+            return;
+        }
+    }
+
+    if (unit.value == ":=") {
+        ReadLine();
+
+        if (unit.key == "INT") {
+            int value = s2i(unit.value);
+
+            if (is_same_level(name, lev)) {
+                ThrowError(23); // 多重定义
+                return;
+            }
+
+            addConst(name, lev, value);
+            ReadLine();
+        }
+        else {
+            ThrowError(13); // 标识符缺失
+            return;
+        }
+    }
+    else {
+        if (unit.value == "=") {
+            ThrowError(14); // 缺少":"
             ReadLine();
 
-        if ((unit.key == "AOP" && unit.value == ":=") || *errorType == 4) {
-            if (!(unit.key == "AOP" && unit.value == ":=") && *errorType == 4)
-                errorType++;
-            else
-                ReadLine();
+            if (unit.key == "INT") {
+                int value = s2i(unit.value);
 
-            if (unit.key == "INT" || *errorType == 5) {
-                if (unit.key != "INT" && *errorType == 5)
-                    errorType++;
-                else
-                    ReadLine();
-            } else {
-                ThrowError(5);
+                if (is_same_level(name, lev)) {
+                    ThrowError(23); // 多重定义
+                    return;
+                }
+
+                addConst(name, lev, value);
+                ReadLine();
             }
-        } else {
-            ThrowError(4);
+            else {
+                ThrowError(13); // 标识符缺失
+                return;
+            }
         }
-    } else {
-        ThrowError(3);
+        else {
+            ThrowError(15); // 赋值号缺失
+            return;
+        }
     }
 }
 
@@ -1009,21 +1057,21 @@ void Condecl() {
     Const();
 
     if (error) return;
-    while ((unit.key == "SOP" && unit.value == ",")) {
-        ReadLine();
+    bool flag = false;
+    while (unit.value == "," || unit.key == "ID") {
+        flag = true;
+
+        if (unit.key == "ID")
+            ThrowError(5); // 逗号缺失
+        else
+            ReadLine();
+
         Const();
 
         if (error) return;
     }
 
-    if ((unit.key == "EOP" && unit.value == ";") || *errorType == 2) {
-        if (!(unit.key == "EOP" && unit.value == ";") && *errorType == 2)
-            errorType++;
-        else
-            ReadLine();
-    } else {
-        ThrowError(2);
-    }
+
 }
 
 //<block> → [<condecl>][<vardecl>][<proc>]<body>
