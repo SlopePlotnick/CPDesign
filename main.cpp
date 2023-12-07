@@ -5,17 +5,16 @@
 using namespace std;
 
 int LA(string file);
-int GA();
+int GA(string file);
 
-vector<string> filelist{"right1"};
-
+string file = "right1";
 
 int main () {
-    for (auto file : filelist) {
-        LA(file);
+    cout << "-----------------------------------" << endl;
+    cout << "current file:" << file << endl;
+    LA(file);
 
-        GA();
-    }
+    GA(file);
 
     return 0;
 }

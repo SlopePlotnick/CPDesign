@@ -100,9 +100,9 @@ int getBase(int nowSp, int lev) {
 }
 
 // 输出中间代码
-void printPcode() {
+void printPcode(string file) {
     fstream code;
-    code.open("Pcode", ios::out | ios::trunc);
+    code.open("Pcode_" + file, ios::out | ios::trunc);
     for (int i = 0; i < cx; i++) {
         code << i << ' ';
         code << order[Pcode[i].f] << ' ' << Pcode[i].l << ' ' << Pcode[i].a << endl;
@@ -112,18 +112,23 @@ void printPcode() {
 };
 
 // 输出符号表
-void printTable() {
+void printTable(string file) {
     fstream table;
-    table.open("SymTable", ios::out | ios::trunc);
+    table.open("SymTable_" + file, ios::out | ios::trunc);
     int i = 1;
-    table << "名称" << '\t' << "类型" << '\t' << "数值" << '\t' << "层次" << '\t' << "相对地址" << '\t' << "出现次数" << '\t' << endl;
+    table << "名称" << "\t\t" << "类型" << "\t\t" << "数值" << "\t\t" << "层次" << "\t\t" << "相对地址" << "\t\t" << "出现次数" << "\t\t" << endl;
     while (SymTable[i].num) {
-        table << SymTable[i].name.c_str() << '\t'
-        << SymTable[i].type << '\t'
-        << SymTable[i].value << '\t'
-        << SymTable[i].level << '\t'
-        << SymTable[i].addr << '\t'
-        << SymTable[i].num << '\t' << endl;
+        table << SymTable[i].name.c_str() << "\t\t";
+        if (SymTable[i].type == 0)
+            table << "CONST" << "\t\t";
+        else if (SymTable[i].type == 1)
+            table << "VAR" << "\t\t";
+        else
+            table << "PROCEDURE" << "\t\t";
+        table << SymTable[i].value << "\t\t"
+        << SymTable[i].level << "\t\t"
+        << SymTable[i].addr << "\t\t"
+        << SymTable[i].num << "\t\t" << endl;
         i++;
     }
 
@@ -876,7 +881,7 @@ void Proc() {
             // 这里注意 在活动记录中最底下还有三个东西(老sp, 静态链, 返回地址) 因此变量的偏移量要加3
             addVar(unit.value, lev, cnt + 3);
             cnt++;
-            SymTable[tx0].size = cnt;
+            SymTable[tx0].size = cnt; // 修改符号表中当前过程对应的参数个数
 
             ReadLine();
             while (unit.value == "," || unit.key == "ID") {
@@ -1026,7 +1031,7 @@ void Const() {
             int value = s2i(unit.value);
 
             if (is_same_level(name, lev)) {
-                ThrowError(23); // 多重定义
+                ThrowError(23, name); // 多重定义
                 return;
             }
 
@@ -1133,15 +1138,16 @@ void Block() {
 
     INT_pos = cx;
     gen(INT, 0, dx);
-    Pcode[cx0].a = cx - 1; // 回填 让JMP指令跳到INT指令的位置
+    Pcode[cx0].a = INT_pos; // 回填 让JMP指令跳到INT指令的位置
     if (n != -1) {
-        SymTable[n].value = cx - 1; // 调用子过程的入口地址
+        SymTable[n].value = INT_pos; // 调用子过程的入口地址 即INT语句的位置
     }
 
     Body();
     gen(OPR, 0, 0); // 返回调用点并出栈
     dx = dx0; // 恢复老sp
-    tx = tx0; // 符号表将当前proc的所有符号出栈 这一步操作保证了作用域互不干扰
+    // 当出现并列的procedure时 下面的操作会不会导致符号表被覆盖？
+    tx = tx0; // 一个Block匹配结束之后 作用域发生了变化 此时必须将符号表指针置于进入block之前的位置 否则可能会出现访问到局部变量的情况
 }
 
 //<prog> → program <id>；<block>
@@ -1180,9 +1186,9 @@ void Prog() {
 }
 
 // 打开文件
-void OpenFile() {
-    gaSource.open("la_output", ios::in); // Read file
-    gaOutput.open("ga_output", ios::out | ios::trunc); // Write file
+void OpenFile(string file) {
+    gaSource.open("la_output_" + file, ios::in); // Read file
+    gaOutput.open("ga_output_" + file, ios::out | ios::trunc); // Write file
 
     if (!gaSource.is_open()) {
         cout << "Cannot open the gaSource file!\a" << endl;
@@ -1223,13 +1229,13 @@ void PrintErrorStack() {
     cout << endl << "|<<<<<<<<<<<<<<<<<<<<<<" << endl;
 }
 
-int GA() {
+int GA(string file) {
 
-    OpenFile();
+    OpenFile(file);
     Prog();
 
-    printPcode();
-    printTable();
+    printPcode(file);
+    printTable(file);
 
     if (!error)
         interpreter();

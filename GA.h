@@ -85,7 +85,7 @@ vector<symbol> SymTable(1000); //符号表
 string line;
 string::iterator itLine;
 int tx = 0; // 符号表下标指针 符号表地址从1开始
-int dx = 0; // 变量在运行栈中相对本过程基地址的偏移量
+int dx = 0; // 变量在运行栈中相对本过程基地址的偏移量(相对地址)
 int cx = 0; // 指令下一地址
 int lev = 0; // 当前层数
 int dataStack[N] = {0}; // 数据栈

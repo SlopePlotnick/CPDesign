@@ -1,4 +1,4 @@
-program xi;
+program right1;
 const a:=5;
 var j,sum,x;
      procedure sum1(x);

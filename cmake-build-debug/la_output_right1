@@ -1,10 +1,10 @@
-# Generate Time: Thu Dec  7 13:13:26 2023
+# Generate Time: Thu Dec  7 18:20:49 2023
 # Program File Name: input.txt
 # Language Set: PL/0
 
 program RESERVED 1 8
-xi ID 1 11
-; EOP 1 12
+right1 ID 1 15
+; EOP 1 16
 const RESERVED 2 6
 a ID 2 8
 := AOP 2 10
