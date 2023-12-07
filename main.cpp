@@ -1,12 +1,21 @@
-int LA();
+#include <iostream>
+#include <string>
+#include <vector>
+
+using namespace std;
+
+int LA(string file);
 int GA();
 
-int main () {
-    // Lexical analysis
-    LA();
+vector<string> filelist{"right1"};
 
-    // Grammar analysis
-    GA();
+
+int main () {
+    for (auto file : filelist) {
+        LA(file);
+
+        GA();
+    }
 
     return 0;
 }

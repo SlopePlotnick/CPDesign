@@ -224,4 +224,9 @@ CMakeFiles/Compiler.dir/GA.cpp.o: \
  /opt/homebrew/Cellar/gcc/13.2.0/include/c++/13/bits/stl_uninitialized.h \
  /opt/homebrew/Cellar/gcc/13.2.0/include/c++/13/bits/stl_vector.h \
  /opt/homebrew/Cellar/gcc/13.2.0/include/c++/13/bits/stl_bvector.h \
- /opt/homebrew/Cellar/gcc/13.2.0/include/c++/13/bits/vector.tcc
+ /opt/homebrew/Cellar/gcc/13.2.0/include/c++/13/bits/vector.tcc \
+ /opt/homebrew/Cellar/gcc/13.2.0/include/c++/13/stack \
+ /opt/homebrew/Cellar/gcc/13.2.0/include/c++/13/deque \
+ /opt/homebrew/Cellar/gcc/13.2.0/include/c++/13/bits/stl_deque.h \
+ /opt/homebrew/Cellar/gcc/13.2.0/include/c++/13/bits/deque.tcc \
+ /opt/homebrew/Cellar/gcc/13.2.0/include/c++/13/bits/stl_stack.h

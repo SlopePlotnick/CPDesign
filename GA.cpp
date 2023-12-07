@@ -38,7 +38,7 @@ void addProcedure(string name, int level, int addr) {
     SymTable[tx].num = 1;
 }
 
-//在符号表中查找某id
+// 在符号表中查找某id
 int position(string name) {
     for (int i = tx; i > 0; i--) {
         if (SymTable[i].name == name) {
@@ -101,21 +101,33 @@ int getBase(int nowSp, int lev) {
 
 // 输出中间代码
 void printPcode() {
+    fstream code;
+    code.open("Pcode", ios::out | ios::trunc);
     for (int i = 0; i < cx; i++) {
-        cout << i << ' ';
-        cout << order[Pcode[i].f] << ' ' << Pcode[i].l << ' ' << Pcode[i].a << endl;
+        code << i << ' ';
+        code << order[Pcode[i].f] << ' ' << Pcode[i].l << ' ' << Pcode[i].a << endl;
     }
+
+    code.close();
 };
 
 // 输出符号表
 void printTable() {
+    fstream table;
+    table.open("SymTable", ios::out | ios::trunc);
     int i = 1;
+    table << "名称" << '\t' << "类型" << '\t' << "数值" << '\t' << "层次" << '\t' << "相对地址" << '\t' << "出现次数" << '\t' << endl;
     while (SymTable[i].num) {
-        printf("名称:%s\t类型:%d\t数值:%d\t层次:%d\t相对地址:%d\t出现次数:%d\n",
-               SymTable[i].name.c_str(), SymTable[i].type, SymTable[i].value, SymTable[i].level, SymTable[i].addr,
-               SymTable[i].num);
+        table << SymTable[i].name.c_str() << '\t'
+        << SymTable[i].type << '\t'
+        << SymTable[i].value << '\t'
+        << SymTable[i].level << '\t'
+        << SymTable[i].addr << '\t'
+        << SymTable[i].num << '\t' << endl;
         i++;
     }
+
+    table.close();
 }
 
 // 解释器
@@ -413,8 +425,9 @@ void Exp();
 //<factor>→<id>|<integer>|(<exp>)
 void Factor() {
     if (unit.key == "ID") {
-        if (!is_pre_level(unit.value, lev))
-            ThrowError(18);
+        if (!is_pre_level(unit.value, lev)) {
+            ThrowError(18); // 多重定义
+        }
         else {
             // 已定义
             int i = position(unit.value);
@@ -434,6 +447,7 @@ void Factor() {
                 return;
             }
         }
+        ReadLine();
     }
     else if (unit.key == "INT") {
         gen(LIT, 0, s2i(unit.value));
@@ -1057,10 +1071,7 @@ void Condecl() {
     Const();
 
     if (error) return;
-    bool flag = false;
     while (unit.value == "," || unit.key == "ID") {
-        flag = true;
-
         if (unit.key == "ID")
             ThrowError(5); // 逗号缺失
         else
@@ -1071,7 +1082,12 @@ void Condecl() {
         if (error) return;
     }
 
-
+    if (unit.value == ";")
+        ReadLine();
+    else {
+        ThrowError(2); // 分号缺失
+        return;
+    }
 }
 
 //<block> → [<condecl>][<vardecl>][<proc>]<body>
@@ -1124,44 +1140,46 @@ void Block() {
 
     Body();
     gen(OPR, 0, 0); // 返回调用点并出栈
-    dx = dx0; //恢复老sp
+    dx = dx0; // 恢复老sp
+    tx = tx0; // 符号表将当前proc的所有符号出栈 这一步操作保证了作用域互不干扰
 }
 
 //<prog> → program <id>；<block>
 void Prog() {
     ReadLine();
-    if ((unit.value == "program" && unit.key == "RESERVED") || *errorType == 0) {
-        if (*errorType == 0)
-            errorType++;
-        ReadLine();
-        if (unit.key == "ID" || *errorType == 1) {
-            if (*errorType == 1)
-                errorType++;
-            else
-                ReadLine();
-            if ((unit.value == ";" && unit.key == "EOP") || *errorType == 2) {
-                if (*errorType == 2 && unit.value != ";")
-                    errorType++;
-                else
-                    ReadLine();
-                Block();
 
-                if (error) return;
-            } else {
-                ThrowError(2);
-            }
-        } else {
-            ThrowError(1);
-        }
-    } else {
-        ThrowError(0);
+    if (unit.value != "program") {
+        ThrowError(16); // program缺失
+        // 恐慌模式
+        while (unit.key != "ID" && unit.value != ";")
+            ReadLine();
+    }
+    else
+        ReadLine();
+
+    if (unit.key == "ID")
+        ReadLine();
+    else
+        ThrowError(6); // 标识符缺失
+
+    if (unit.value == ";")
+        ReadLine();
+    else {
+        ThrowError(2); // 分号缺失
+        // 恐慌模式
+        while(unit.value != "const" && unit.value != "var" && unit.value != "procedure" && unit.value != "begin" && unit.value != ";")
+            ReadLine();
     }
 
+    if (unit.value == ";")
+        ReadLine();
+
+    Block();
+
+    if (error) return;
 }
 
-/**
- * Open IO files.
- */
+// 打开文件
 void OpenFile() {
     gaSource.open("la_output", ios::in); // Read file
     gaOutput.open("ga_output", ios::out | ios::trunc); // Write file
@@ -1172,7 +1190,8 @@ void OpenFile() {
     }
     if (!gaOutput.is_open()) {
         cout << "Cannot open the gaOutput file!\a" << endl;
-    } else {
+    }
+    else {
         // Header of the file (DateTime & File name & Lang set)
 
         time_t rawtime;
@@ -1188,17 +1207,11 @@ void OpenFile() {
     }
 }
 
-/**
- * Close IO files.
- */
 void CloseFile() {
     gaSource.close();
     gaOutput.close();
 }
 
-/**
- * Print the error stack out.
- */
 void PrintErrorStack() {
     cout << "[DEBUG] Error Stack" << endl;
     cout << endl << "|<<<< ERROR STACK <<<<<" << endl;
@@ -1214,17 +1227,17 @@ int GA() {
 
     OpenFile();
     Prog();
-    CloseFile();
-    // when there's an error, the program will end and when will start from begin again.
-    while (error) {
-        error = false;
-        errorType = errorStack;
-        OpenFile();
-        Prog();
-        CloseFile();
-    }
 
-//    PrintErrorStack();
+    printPcode();
+    printTable();
+
+    if (!error)
+        interpreter();
+    else
+        cout << "The program has been stopped in that there're errors in program." << endl;
+
     cout << "Grammatical Analysis done!" << endl;
+    CloseFile();
+
     return 0;
 }

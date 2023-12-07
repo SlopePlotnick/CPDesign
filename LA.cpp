@@ -100,14 +100,14 @@ void Retract() {
  * Main function.
  * @return 0
  */
-int LA() {
+int LA(string file) {
 //    string inputFileName;
 //
 //    cout << "Enter the program file name: ";
 //    cin >> inputFileName;
 //    cout << endl;
 
-    source.open("input.txt", ios::in);           // Read file
+    source.open(file, ios::in);           // Read file
     output.open("la_output", ios::out | ios::trunc); // Write file
     line = 1;
     column = 1;
