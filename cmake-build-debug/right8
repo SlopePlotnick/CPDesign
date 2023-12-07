@@ -1,0 +1,40 @@
+program nuaa;
+const a:=20,b:=10;
+var c,d,e,flag;
+	procedure nuaa2(k);
+	var m;
+	begin
+		write(k);
+		flag:=flag+k
+	end;
+	procedure nuaa3(s);
+	begin
+		flag:=flag+s
+	end;
+	procedure nuaa1(k);
+	var sum;
+	begin
+		flag:=0;
+		sum:=20;
+		while k>=0 do
+		begin
+			if odd k then
+				begin
+					call nuaa2(k);
+					sum:=sum+k
+				end
+			else
+				begin
+					call nuaa3(k);
+					sum:=sum-k
+				end;
+			k:=k-1
+		end;
+		flag:=sum+flag
+	end
+begin
+	read(c);
+	e:=c+2;
+	call nuaa1(e);
+	write(flag)
+end
