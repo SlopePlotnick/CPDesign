@@ -1,18 +1,17 @@
 program right2;
 const a:=5;
 var x,y;
-procedure test1(x);
-var y;
-begin
-    y:=x;
-    y:=y+3;
-    write(y)
-end;
-procedure test2(x);
-begin
-    write(y)
-end
-
+    procedure test1(x);
+    var y;
+    begin
+        y:=x;
+        y:=y+3;
+        write(y)
+    end;
+    procedure test2(x);
+    begin
+        write(y)
+    end
 begin
     x:=2;
     y:=99;

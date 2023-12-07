@@ -1,0 +1,6 @@
+名称		类型		数值		层次		相对地址		出现次数		
+return		VAR		0		0		3		6		
+i		VAR		0		0		4		3		
+fib		PROCEDURE		2		0		5		4		
+x		VAR		0		1		3		4		
+sum		VAR		0		1		4		7		

@@ -7,10 +7,10 @@ using namespace std;
 int LA(string file);
 int GA(string file);
 
-string file = "right1";
+string file = "right7";
 
 int main () {
-    cout << "-----------------------------------" << endl;
+//    cout << "-----------------------------------" << endl;
     cout << "current file:" << file << endl;
     LA(file);
 

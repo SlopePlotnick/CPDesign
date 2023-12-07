@@ -1,0 +1,22 @@
+program fibonacci;
+var return,i;
+    procedure fib(x);
+    var sum;
+    begin
+        if x<=2 then
+            return:=1
+        else
+        begin
+            sum:=0;
+            call fib(x-1);
+            sum:=sum+return;
+            call fib(x-2);
+            sum:=sum+return;
+            return:=sum
+        end
+    end
+begin
+    read(i);
+    call fib(i);
+    write(return)
+end

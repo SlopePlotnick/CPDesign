@@ -1,0 +1,5 @@
+名称		类型		数值		层次		相对地址		出现次数		
+x		VAR		0		0		3		5		
+p		PROCEDURE		12		0		4		2		
+q		PROCEDURE		3		1		3		2		
+z		VAR		0		2		3		3		

@@ -136,7 +136,11 @@ void printTable(string file) {
 }
 
 // 解释器
-void interpreter() {
+void interpreter(string file) {
+    // 实时输出数据栈
+    fstream stack;
+    stack.open("dataStack" + file, ios::out | ios::trunc);
+
     //init
     P = 0; // 下条指令位置
     B = 0; // 基址
@@ -269,6 +273,10 @@ void interpreter() {
                 cout << dataStack[T - 1];
                 break;
         }
+
+        for (int i = T - 1; i >= 0; i--)
+            stack << dataStack[i] << endl;
+        stack << "----------------------------------" << endl;
     } while (P);
 }
 
@@ -658,6 +666,7 @@ void Statement() {
         if (unit.value == ")")
             // 无参数传递的情况 此处SymTable[i].value是要跳转的指令地址
             gen(CAL, lev - SymTable[i].level, SymTable[i].value);
+        //有参数传递的情况
         if (unit.value == "+" || unit.value == "-" || unit.key == "ID" || unit.key == "INT" || unit.value == "(") {
             Exp();
 
@@ -678,7 +687,7 @@ void Statement() {
                 // 此处对STO的参数进行解释
                 // 此时的i指向的是符号表中被调用的过程的id 对于被调用的参数而言 使用值的level要在过程id所处的level上再深一层 所以用lev - (SymTable[i].level + 1)表示参数的层差
                 // 对于参数的相对地址 相对基址而言 在其上面3 - 1的位置（相当于原来的栈顶+3）参数按顺序从上往下摆 第一个参数的位置还要再加上size 此后对于每一个参数 按顺序减去对应的j即可
-                gen(STO, lev - (SymTable[i].level + 1), SymTable[i].size + 3 - 1 - j);
+                gen(STO, -1, SymTable[i].size + 3 - 1 - j);
             }
             gen(CAL, lev - SymTable[i].level, SymTable[i].value); // 对过程id value中存储的是被调用程序的入口地址
         }
@@ -1238,7 +1247,7 @@ int GA(string file) {
     printTable(file);
 
     if (!error)
-        interpreter();
+        interpreter(file);
     else
         cout << "The program has been stopped in that there're errors in program." << endl;
 
