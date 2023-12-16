@@ -40,12 +40,13 @@ void addProcedure(string name, int level, int addr) {
 
 // 在符号表中查找某id
 int position(string name) {
+    // 采用从后往前寻找的方式 寻找最近定义的同名id
     for (int i = tx; i > 0; i--) {
         if (SymTable[i].name == name) {
             return i;
         }
     }
-    return -1; // 表示没找到？
+    return -1; // 表示没找到
 }
 
 // 是否同层
@@ -244,7 +245,7 @@ void interpreter(string file) {
                 break;
             case 4: // CAL
                 dataStack[T] = B; // 老sp
-                dataStack[T + 1] = getBase(B, Pcode[I].l); // 静态链（直接外层）
+                dataStack[T + 1] = getBase(B, Pcode[I].l); // 静态链 相当于被调用函数所处活动记录的基地址
                 dataStack[T + 2] = P; // 返回地址 下一条指令地址
 
                 B = T; // 新sp
@@ -395,40 +396,40 @@ void ThrowError(int type, string name = "") {
             break;
         case 18://该变量未定义
             if(name != "")
-                printf("[error][%d,%d] not exist %s\n", unit.line, unit.column, name.c_str());
+                printf("[Grammar error][%d,%d] not exist %s\n", unit.line, unit.column, name.c_str());
             else
-                printf("[error][%d,%d] not exist %s\n", unit.line, unit.column, unit.value.c_str());
+                printf("[Grammar error][%d,%d] not exist %s\n", unit.line, unit.column, unit.value.c_str());
             break;
         case 19://不是变量
             if(name != "")
-                printf("[error][%d,%d] %s is not a variable \n", unit.line, unit.column, name.c_str());
+                printf("[Grammar error][%d,%d] %s is not a variable \n", unit.line, unit.column, name.c_str());
             else
-                printf("[error][%d,%d] %s is not a variable \n", unit.line, unit.column, unit.value.c_str());
+                printf("[Grammar error][%d,%d] %s is not a variable \n", unit.line, unit.column, unit.value.c_str());
             break;
         case 20://不是常量
             if(name != "")
-                printf("[error][%d,%d] %s is not a const \n", unit.line, unit.column, name.c_str());
+                printf("[Grammar error][%d,%d] %s is not a const \n", unit.line, unit.column, name.c_str());
             else
-                printf("[error][%d,%d] %s is not a const \n", unit.line, unit.column, unit.value.c_str());
+                printf("[Grammar error][%d,%d] %s is not a const \n", unit.line, unit.column, unit.value.c_str());
             break;
         case 21://不是过程
             if(name != "")
-                printf("[error][%d,%d] %s is not a procedure \n", unit.line, unit.column, name.c_str());
+                printf("[Grammar error][%d,%d] %s is not a procedure \n", unit.line, unit.column, name.c_str());
             else
-                printf("[error][%d,%d] %s is not a procedure \n", unit.line, unit.column, unit.value.c_str());
+                printf("[Grammar error][%d,%d] %s is not a procedure \n", unit.line, unit.column, unit.value.c_str());
             break;
         case 22://参数个数不匹配
-            printf("[error][%d,%d] The number of parameters does not match \n", unit.line, unit.column);
+            printf("[Grammar error][%d,%d] The number of parameters does not match \n", unit.line, unit.column);
             break;
         case 23://多重定义
             if(name != "")
-                printf("[error][%d,%d] Duplicate definition %s\n", unit.line, unit.column, name.c_str());
+                printf("[Grammar error][%d,%d] Duplicate definition %s\n", unit.line, unit.column, name.c_str());
             else
-                printf("[error][%d,%d] Duplicate definition %s\n", unit.line, unit.column, unit.value.c_str());
+                printf("[Grammar error][%d,%d] Duplicate definition %s\n", unit.line, unit.column, unit.value.c_str());
             break;
 
         default:
-            printf("[error][%d,%d] Unknown error\n", unit.line, unit.column);
+            printf("[Grammar error][%d,%d] Unknown error\n", unit.line, unit.column);
             break;
     }
 }
@@ -439,7 +440,7 @@ void Exp();
 void Factor() {
     if (unit.key == "ID") {
         if (!is_pre_level(unit.value, lev)) {
-            ThrowError(18); // 多重定义
+            ThrowError(18); // 变量未定义
         }
         else {
             // 已定义
@@ -456,7 +457,7 @@ void Factor() {
             }
             // 不是var和const类型
             else {
-                ThrowError(19);
+                ThrowError(19); // 报错为不是变量
                 return;
             }
         }
