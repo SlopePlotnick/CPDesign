@@ -7,7 +7,7 @@ using namespace std;
 int LA(string file);
 int GA(string file);
 
-string file = "right4";
+string file = "right";
 
 int main () {
 //    cout << "-----------------------------------" << endl;

@@ -1,0 +1,64 @@
+program right;
+const a:=5;
+var x,y,b,c,k,fibreturn,return2;
+    procedure fib(x);
+    var sum;
+    begin
+        if x<=2 then
+            fibreturn:=1
+        else
+        begin
+            sum:=0;
+            call fib(x-1);
+            sum:=sum+fibreturn;
+            call fib(x-2);
+            sum:=sum+fibreturn;
+            fibreturn:=sum
+        end
+    end;
+
+    procedure test1();
+        procedure in();
+        begin
+            y:=y+a
+        end
+    begin
+        y:=y+a;
+        call in()
+    end;
+
+    procedure judge(x);
+    begin
+        if odd x+1 then
+            return2:=1
+        else
+            return2:=0
+    end;
+
+    procedure test2(m,k);
+    var i,sum;
+    begin
+        i:=0;
+        sum:=0;
+        while i<k do
+        begin
+            sum:=sum+m;
+            i:=i+1
+        end;
+        write(sum);
+        call judge(sum)
+    end
+
+begin
+     read(x);
+     call fib(x);
+     write(fibreturn);
+
+     read(y);
+     call test1();
+     write(y);
+
+     read(b,c,k);
+     call test2(b+c,k);
+     write(return2)
+end

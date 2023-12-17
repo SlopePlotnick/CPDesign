@@ -1260,7 +1260,7 @@ int GA(string file) {
     if (!error)
         interpreter(file);
     else
-        cout << "The program has been stopped in that there're errors in program." << endl;
+        cout << "The program has been stopped in that there're errors in the program." << endl;
 
     cout << "Grammatical Analysis done!" << endl;
     CloseFile();
