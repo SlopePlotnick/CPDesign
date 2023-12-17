@@ -92,7 +92,7 @@ int findproc(int pos) {
 // 根据层差找基地址
 int getBase(int nowSp, int lev) {
     int oldSp = nowSp;
-    // 存在层差时 寻找非局部变量
+    // 存在层差时 反复通过静态链寻找活动记录基地址
     while (lev) {
         oldSp = dataStack[oldSp + 1]; // 寻找定义外层的活动记录首地址
         lev--;
@@ -159,8 +159,8 @@ void interpreter(string file) {
                 switch (Pcode[I].a) {
                     case 0: // 返回调用点
                         T = B; // 恢复栈顶
-                        P = dataStack[B + 2]; // 返回地址
-                        B = dataStack[B]; // 静态链
+                        P = dataStack[B + 2]; // 返回地址 使指令指针指向下一条需要执行的指令
+                        B = dataStack[B]; // 恢复老sp
                         break;
                     case 1: // 取反
                         dataStack[T - 1] = -dataStack[T - 1];
@@ -244,7 +244,7 @@ void interpreter(string file) {
                 T--;
                 break;
             case 4: // CAL
-                dataStack[T] = B; // 老sp
+                dataStack[T] = B; // 老sp 指向调用子过程前的最新活动基地址
                 dataStack[T + 1] = getBase(B, Pcode[I].l); // 静态链 相当于被调用函数所处活动记录的基地址
                 dataStack[T + 2] = P; // 返回地址 下一条指令地址
 
@@ -271,7 +271,7 @@ void interpreter(string file) {
                 T++;
                 break;
             case 9: // WRT
-                cout << dataStack[T - 1];
+                cout << dataStack[T - 1] << ' ';
                 break;
         }
 
@@ -380,7 +380,7 @@ void ThrowError(int type, string name = "") {
             printf("[Grammar error][%d,%d] Missing \"end\" \n", unit.line, unit.column);
             break;
         case 13://常量赋值号后面应为数字
-            printf("[Grammar error][%d,%d] after\":=\" should be a number  \n", unit.line, unit.column);
+            printf("[Grammar error][%d,%d] after\":=\" should be an integer  \n", unit.line, unit.column);
             break;
         case 14://缺少:
             printf("[Grammar error][%d,%d] Missing \":\" \n", unit.line, unit.column);
@@ -565,7 +565,6 @@ void Lexp() {
         else if (opr == "<=")
             gen(OPR, 0, 12);
     }
-
 }
 
 
@@ -599,7 +598,7 @@ void Statement() {
 
         if (error) return;
         int cx2 = cx; // 记录待回填代码地址
-        gen(JMP, 0, 0);
+        gen(JMP, 0, 0); // 这里需要有一条jmp指令是因为要确保当then后面的statement结束之后 如果有else的话 需要跳到else后面的statement后面的语句去执行
 
         //回填
         Pcode[cx2].a = cx;
@@ -614,13 +613,13 @@ void Statement() {
 
     }
     else if (unit.key == "RESERVED" && unit.value == "while") {
-        int cx1 = cx;
+        int cx1 = cx; // 记录条件判断指令的位置 用于结束statement后跳回反复循环判断
         ReadLine();
         Lexp();
 
         if (error) return;
         int cx2 = cx;
-        gen(JPC, 0, 0);
+        gen(JPC, 0, 0); // cx2是这条指令在指令列表中的位置
         if (unit.key == "RESERVED" && unit.value == "do")
             ReadLine();
         else {
@@ -629,8 +628,8 @@ void Statement() {
         }
 
         Statement();
-        gen(JMP, 0, cx1);
-        Pcode[cx2].a = cx;
+        gen(JMP, 0, cx1); // 无条件跳转回进行条件判断的位置
+        Pcode[cx2].a = cx; // 条件为假时跳出循环 此时跳转到的位置是上面的jmp指令后面
 
     }
     else if (unit.key == "RESERVED" && unit.value == "call") {
@@ -654,8 +653,10 @@ void Statement() {
             }
             ReadLine();
         }
-        else
-            ThrowError(6);
+        else {
+            ThrowError(6); // 标识符缺失
+            return;
+        }
 
         if (unit.value == "(")
             ReadLine();
@@ -686,8 +687,8 @@ void Statement() {
 
             for (int j = 0; j < SymTable[i].size; j++) {
                 // 此处对STO的参数进行解释
-                // 此时的i指向的是符号表中被调用的过程的id 对于被调用的参数而言 使用值的level要在过程id所处的level上再深一层 所以用lev - (SymTable[i].level + 1)表示参数的层差
-                // 对于参数的相对地址 相对基址而言 在其上面3 - 1的位置（相当于原来的栈顶+3）参数按顺序从上往下摆 第一个参数的位置还要再加上size 此后对于每一个参数 按顺序减去对应的j即可
+                // 用l==-1表示参数的传递
+                // 此处的a在实际解释执行时并没有用到 但SymTable[i].size + 3 - 1 - j表示的实际上是被传递的参数在活动记录中的相对偏移量
                 gen(STO, -1, SymTable[i].size + 3 - 1 - j);
             }
             gen(CAL, lev - SymTable[i].level, SymTable[i].value); // 对过程id value中存储的是被调用程序的入口地址
@@ -865,10 +866,10 @@ void Body() {
 void Block();
 
 //<proc> → procedure <id>（[<id>{,<id>}]）;<block>{;<proc>}
-// 保留字procedure在外层判断
+// 保留字procedure在外层匹配
 void Proc() {
-    int cnt = 0;
-    int tx0;
+    int cnt = 0; // 用于记录参数个数
+    int tx0; // 用于记录过程名在符号表中的位置
 
     if (unit.key == "ID") {
         if (is_same_level(unit.value, lev)) {
@@ -889,6 +890,7 @@ void Proc() {
 
         if (unit.key == "ID") {
             // 这里注意 在活动记录中最底下还有三个东西(老sp, 静态链, 返回地址) 因此变量的偏移量要加3
+            // 注意这里还需要在符号表中添加变量是因为传递的参数变为形式参数 与实在参数是层数不同的变量
             addVar(unit.value, lev, cnt + 3);
             cnt++;
             SymTable[tx0].size = cnt; // 修改符号表中当前过程对应的参数个数
@@ -950,22 +952,23 @@ void Proc() {
 
     Block(); // 假设Block函数中如果出现proc 会在匹配proc出来后将lev恢复为进入Block时的层数 此层不需要做处理
 
-    // 假设不会出现procedure关键字缺失的情况
     // 此时的lev为进入Block时的层数 若要进行下面的并列函数匹配 每次进入proc匹配前都要先将lev恢复
     int old_lev = lev; // 预先存储当前的层数
     while (unit.value == ";") {
         ReadLine();
-        // 这里即将进行的proc匹配和当前层的proc是同层的 在进入proc匹配前应先恢复正常的层数
+        // 这里即将进行的proc匹配和当前层的proc是同层的 在进入proc匹配前应先恢复进入当前层proc时的层数
         lev = old_lev - 1;
-        ReadLine(); // 匹配procedure关键字
+        ReadLine(); // 匹配procedure关键字 此处假设了不会出现procedure关键字缺失的情况
         Proc(); // 从procedure的下一个开始匹配
     }
 
     // 结束函数前将lev恢复为预先存储的lev 注意正常情况下这里的lev相当于进入这层proc的lev + 1
     lev = old_lev;
+    // 最初的procedure的匹配只会出现在block的匹配中 此处不对层数进行出proc的减1还原处理 在block层减1即可
 }
 
 //<vardecl> → var <id>{,<id>};
+// 关键字var在外层匹配
 void Vardecl() {
     if (unit.key == "ID") {
         if (is_same_level(unit.value, lev)) {
@@ -1049,7 +1052,7 @@ void Const() {
             ReadLine();
         }
         else {
-            ThrowError(13); // 标识符缺失
+            ThrowError(13); // 常量赋值号后面不为数字
             return;
         }
     }
@@ -1070,7 +1073,7 @@ void Const() {
                 ReadLine();
             }
             else {
-                ThrowError(13); // 标识符缺失
+                ThrowError(13); // 常量赋值号后面不为数字
                 return;
             }
         }
@@ -1107,21 +1110,23 @@ void Condecl() {
 
 //<block> → [<condecl>][<vardecl>][<proc>]<body>
 void Block() {
-    int dx0;
-    int tx0;
-    int n;
+    int dx0; // 用于记录旧的活动记录相对地址
+    int tx0; // 用于记录旧的符号表当前下标
+    int n; // 用于记录查找到的procedure在符号表中的下标
     int cx0 = cx; // 记录跳转指令的位置
-    gen(JMP, 0, 0);
-    n = findproc(tx); // 在当前的符号表中从后往前找procudure
+    gen(JMP, 0, 0); // 该无条件跳转指令的作用是一开始直接跳转到body的第一条语句执行
+    n = findproc(tx); // 在当前的符号表中从后往前找procudure n为procedure在符号表中的位置下标 n==-1表示没有找到
     if (n != -1) {
         // 进入block之前有过程
         tx0 = tx - SymTable[n].size; // 保存旧符号表地址
-        dx0 = dx; // 保存旧运行栈地址
-        dx = 3 + SymTable[n].size; // 新运行栈地址
+        dx0 = dx; // 保存旧活动记录相对偏移量
+        dx = 3 + SymTable[n].size; // 新活动记录相对偏移量
     }
-    else
+    else {
         // 进入block之前没有过程
+        dx0 = dx;
         dx = 3;
+    }
 
     if (unit.value == "const" && unit.key == "RESERVED") {
         ReadLine();
@@ -1155,12 +1160,12 @@ void Block() {
 
     Body();
     gen(OPR, 0, 0); // 返回调用点并出栈
-    dx = dx0; // 恢复老sp
-    // 当出现并列的procedure时 下面的操作会不会导致符号表被覆盖？
+    dx = dx0; // 恢复外层的活动记录相对偏移量
+    // 当出现并列的procedure时 下面的操作会导致符号表被覆盖
     tx = tx0; // 一个Block匹配结束之后 作用域发生了变化 此时必须将符号表指针置于进入block之前的位置 否则可能会出现访问到局部变量的情况
 }
 
-//<prog> → program <id>；<block>
+//<prog> → program <id>;<block>
 void Prog() {
     ReadLine();
 
@@ -1187,6 +1192,7 @@ void Prog() {
             ReadLine();
     }
 
+    // 这里是对恐慌模式的结果处理
     if (unit.value == ";")
         ReadLine();
 

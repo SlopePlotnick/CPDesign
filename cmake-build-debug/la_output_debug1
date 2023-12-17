@@ -1,0 +1,15 @@
+# Generate Time: Sun Dec 17 16:25:19 2023
+# Program File Name: input.txt
+# Language Set: PL/0
+
+program RESERVED 1 8
+debug1 ID 1 15
+; EOP 1 16
+var RESERVED 2 4
+a ID 2 6
+; EOP 2 7
+begin RESERVED 3 6
+a ID 4 7
+:= AOP 4 9
+1 INT 4 10
+end RESERVED 5 4
