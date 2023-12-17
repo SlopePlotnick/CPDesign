@@ -633,7 +633,7 @@ void Statement() {
 
         Statement();
         gen(JMP, 0, cx1); // 无条件跳转回进行条件判断的位置
-        Pcode[cx2].a = cx; // 条件为假时跳出循环 此时跳转到的位置是上面的jmp指令后面
+        Pcode[cx2].a = cx; // 回填 条件为假时跳出循环 此时跳转到的位置是上面的jmp指令后面
 
     }
     else if (unit.key == "RESERVED" && unit.value == "call") {
