@@ -278,6 +278,10 @@ void interpreter(string file) {
         for (int i = T - 1; i >= 0; i--)
             stack << dataStack[i] << endl;
         stack << "----------------------------------" << endl;
+
+        // 程序结束时 由于主函数的活动记录下面的三个位置(老sp，静态链，返回地址)全是0 执行OPR 0 0后P变为0
+        // 因为主程序的入口指令(即下表为0的指令)只会执行一次 所以再次回到下标为0的指令时 即为程序结束
+        // 所以程序结束的条件为P==0 即循环条件为P!=0
     } while (P);
 }
 
@@ -634,7 +638,7 @@ void Statement() {
     }
     else if (unit.key == "RESERVED" && unit.value == "call") {
         ReadLine();
-        int i; // 标识符在符号表中的位置
+        int i; // 过程标识符在符号表中的位置
         int cnt = 0; // 传递参数的个数
 
         // 在符号表中搜索（检查是否已经定义过）
