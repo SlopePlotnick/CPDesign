@@ -140,8 +140,8 @@ int LA(string file) {
 
         if (isBC(ch)) { // Blank character check
             strToken = "";
-        } else if (isLetter(ch)) { // Letter check
-
+        }
+        else if (isLetter(ch)) { // Letter check
             while (isLetter(ch) || isDigit(ch)) { // ID check loop
                 strToken = Concat(strToken, ch);
                 column++;
@@ -151,14 +151,16 @@ int LA(string file) {
             if (Reserve(strToken)) { // Reserved word check
                 //                cout << strToken << ", RESERVED" << endl;
                 output << strToken << " RESERVED" << ' ' << line << ' ' << column << endl;
-            } else {
+            }
+            else {
                 //                cout << strToken << ", ID" << endl;
                 output << strToken << " ID" << ' ' << line << ' ' << column << endl;
             }
             strToken = "";
 
             Retract();
-        } else if (isDigit(ch)) { // Digit check
+        }
+        else if (isDigit(ch)) { // Digit check
             while (isDigit(ch)) {
                 strToken = Concat(strToken, ch);
                 column++;
@@ -185,14 +187,16 @@ int LA(string file) {
                 // Output the entire invalid ID.
                 cout << "\"" << strToken << "\"" << endl;
                 output << "\"" << strToken << "\"" << endl;
-            } else {
+            }
+            else {
                 //                cout << strToken << ", INT" << endl;
                 output << strToken << " INT" << ' ' << line << ' ' << column << endl;
             }
 
             Retract();
             strToken = "";
-        } else {
+        }
+        else {
             switch (ch) { // Other characters check
                 case '=':
                     column++;
@@ -207,11 +211,13 @@ int LA(string file) {
                         column++;
                         //                        cout << "<>, COP" << endl;
                         output << "<> COP" << ' ' << line << ' ' << column << endl;
-                    } else if (ch == '=') {
+                    }
+                    else if (ch == '=') {
                         column++;
                         //                        cout << "<=, COP" << endl;
                         output << "<= COP" << ' ' << line << ' ' << column << endl;
-                    } else {
+                    }
+                    else {
                         //                        cout << "<, COP" << endl;
                         output << "< COP" << ' ' << line << ' ' << column << endl;
                         Retract();
@@ -224,7 +230,8 @@ int LA(string file) {
                         column++;
                         //                        cout << ">=, COP" << endl;
                         output << ">= COP" << ' ' << line << ' ' << column << endl;
-                    } else {
+                    }
+                    else {
                         //                        cout << ">, COP" << endl;
                         output << "> COP" << ' ' << line << ' ' << column << endl;
                         Retract();
@@ -237,7 +244,8 @@ int LA(string file) {
                         column++;
                         //                        cout << ":=, AOP" << endl;
                         output << ":= AOP" << ' ' << line << ' ' << column << endl;
-                    } else {
+                    }
+                    else {
                         cout << "^" << ' ' << strToken << ' ' << "error" << ' ' << line << ' ' << column << endl;
                         cout << "[Lexical error]"
                              << " [" << line << "," << column << "] "
