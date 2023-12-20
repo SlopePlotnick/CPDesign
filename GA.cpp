@@ -400,40 +400,40 @@ void ThrowError(int type, string name = "") {
             break;
         case 18://该变量未定义
             if(name != "")
-                printf("[Grammar error][%d,%d] not exist %s\n", unit.line, unit.column, name.c_str());
+                printf("[error][%d,%d] not exist %s\n", unit.line, unit.column, name.c_str());
             else
-                printf("[Grammar error][%d,%d] not exist %s\n", unit.line, unit.column, unit.value.c_str());
+                printf("[error][%d,%d] not exist %s\n", unit.line, unit.column, unit.value.c_str());
             break;
         case 19://不是变量
             if(name != "")
-                printf("[Grammar error][%d,%d] %s is not a variable \n", unit.line, unit.column, name.c_str());
+                printf("[error][%d,%d] %s is not a variable \n", unit.line, unit.column, name.c_str());
             else
-                printf("[Grammar error][%d,%d] %s is not a variable \n", unit.line, unit.column, unit.value.c_str());
+                printf("[error][%d,%d] %s is not a variable \n", unit.line, unit.column, unit.value.c_str());
             break;
         case 20://不是常量
             if(name != "")
-                printf("[Grammar error][%d,%d] %s is not a const \n", unit.line, unit.column, name.c_str());
+                printf("[error][%d,%d] %s is not a const \n", unit.line, unit.column, name.c_str());
             else
-                printf("[Grammar error][%d,%d] %s is not a const \n", unit.line, unit.column, unit.value.c_str());
+                printf("[error][%d,%d] %s is not a const \n", unit.line, unit.column, unit.value.c_str());
             break;
         case 21://不是过程
             if(name != "")
-                printf("[Grammar error][%d,%d] %s is not a procedure \n", unit.line, unit.column, name.c_str());
+                printf("[error][%d,%d] %s is not a procedure \n", unit.line, unit.column, name.c_str());
             else
-                printf("[Grammar error][%d,%d] %s is not a procedure \n", unit.line, unit.column, unit.value.c_str());
+                printf("[error][%d,%d] %s is not a procedure \n", unit.line, unit.column, unit.value.c_str());
             break;
         case 22://参数个数不匹配
-            printf("[Grammar error][%d,%d] The number of parameters does not match \n", unit.line, unit.column);
+            printf("[error][%d,%d] The number of parameters does not match \n", unit.line, unit.column);
             break;
         case 23://多重定义
             if(name != "")
-                printf("[Grammar error][%d,%d] Duplicate definition %s\n", unit.line, unit.column, name.c_str());
+                printf("[error][%d,%d] Duplicate definition %s\n", unit.line, unit.column, name.c_str());
             else
-                printf("[Grammar error][%d,%d] Duplicate definition %s\n", unit.line, unit.column, unit.value.c_str());
+                printf("[error][%d,%d] Duplicate definition %s\n", unit.line, unit.column, unit.value.c_str());
             break;
 
         default:
-            printf("[Grammar error][%d,%d] Unknown error\n", unit.line, unit.column);
+            printf("[error][%d,%d] Unknown error\n", unit.line, unit.column);
             break;
     }
 }
