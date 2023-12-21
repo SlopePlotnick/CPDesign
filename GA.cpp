@@ -1069,7 +1069,7 @@ void Const() {
                 int value = s2i(unit.value);
 
                 if (is_same_level(name, lev)) {
-                    ThrowError(23); // 多重定义
+                    ThrowError(23, name); // 多重定义
                     return;
                 }
 

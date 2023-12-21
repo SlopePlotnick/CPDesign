@@ -1,0 +1,6 @@
+program wrong1;
+const a:=5;
+var x;
+begin
+    y:=3
+end

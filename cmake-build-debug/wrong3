@@ -1,0 +1,5 @@
+program wrong3;
+var x;
+begin
+    call x();
+end

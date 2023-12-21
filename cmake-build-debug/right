@@ -47,6 +47,22 @@ var x,y,b,c,k,fibreturn,return2;
         end;
         write(sum);
         call judge(sum)
+    end;
+
+    procedure test3();
+        procedure in1();
+        var x;
+        begin
+            x:=3
+        end;
+
+        procedure in2();
+        begin
+            write(x)
+        end
+    begin
+        call in1();
+        call in2()
     end
 
 begin
@@ -60,5 +76,8 @@ begin
 
      read(b,c,k);
      call test2(b+c,k);
-     write(return2)
+     write(return2);
+
+     x:=99;
+     call test3()
 end

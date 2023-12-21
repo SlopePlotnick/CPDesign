@@ -1,0 +1,5 @@
+program wrong2;
+const a:=3;
+begin
+    a:=4
+end

@@ -1,6 +1,6 @@
 名称		类型		数值		层次		相对地址		出现次数		
 a		CONST		5		0		0		3		
-x		VAR		0		0		3		3		
+x		VAR		0		0		3		5		
 y		VAR		0		0		4		7		
 b		VAR		0		0		5		3		
 c		VAR		0		0		6		3		
@@ -11,7 +11,7 @@ fib		PROCEDURE		2		0		10		4
 test1		PROCEDURE		41		0		10		2		
 judge		PROCEDURE		49		0		10		2		
 test2		PROCEDURE		62		0		10		2		
-m		VAR		0		1		3		2		
-k		VAR		0		1		4		2		
-i		VAR		0		1		5		5		
+test3		PROCEDURE		99		0		10		2		
+in1		PROCEDURE		89		1		3		2		
+in2		PROCEDURE		94		1		3		2		
 sum		VAR		0		1		6		6		

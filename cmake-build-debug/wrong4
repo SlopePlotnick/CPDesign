@@ -1,0 +1,11 @@
+program wrong4;
+var a,b;
+    procedure test(x,y,z);
+    begin
+        write(x+y+z)
+    end
+begin
+    a:=3;
+    b:=4;
+    call test(a,b)
+end
