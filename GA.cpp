@@ -103,7 +103,7 @@ int getBase(int nowSp, int lev) {
 // 输出中间代码
 void printPcode(string file) {
     fstream code;
-    code.open("Pcode_" + file, ios::out | ios::trunc);
+    code.open("../output/Pcode_" + file.substr(8), ios::out | ios::trunc);
     for (int i = 0; i < cx; i++) {
         code << i << ' ';
         code << order[Pcode[i].f] << ' ' << Pcode[i].l << ' ' << Pcode[i].a << endl;
@@ -115,7 +115,7 @@ void printPcode(string file) {
 // 输出符号表
 void printTable(string file) {
     fstream table;
-    table.open("SymTable_" + file, ios::out | ios::trunc);
+    table.open("../output/SymTable_" + file.substr(8), ios::out | ios::trunc);
     int i = 1;
     table << "名称" << "\t\t" << "类型" << "\t\t" << "数值" << "\t\t" << "层次" << "\t\t" << "相对地址" << "\t\t" << "出现次数" << "\t\t" << endl;
     while (SymTable[i].num) {
@@ -1207,8 +1207,8 @@ void Prog() {
 
 // 打开文件
 void OpenFile(string file) {
-    gaSource.open("la_output_" + file, ios::in); // Read file
-    gaOutput.open("ga_output_" + file, ios::out | ios::trunc); // Write file
+    gaSource.open("../output/la_output_" + file.substr(8), ios::in); // Read file
+    gaOutput.open("../output/ga_output_" + file.substr(8), ios::out | ios::trunc); // Write file
 
     if (!gaSource.is_open()) {
         cout << "Cannot open the gaSource file!\a" << endl;

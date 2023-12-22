@@ -108,7 +108,7 @@ int LA(string file) {
 //    cout << endl;
 
     source.open(file, ios::in);           // Read file
-    output.open("la_output_" + file, ios::out | ios::trunc); // Write file
+    output.open("../output/la_output_" + file.substr(8), ios::out | ios::trunc); // Write file
     line = 1;
     column = 1;
 
